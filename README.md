@@ -1,17 +1,17 @@
-# Enchanted Grove — Deluxe Edition
+# Enchanted Grove V3 — Arcade Rebuild
 
-This is an upgraded static version of Enchanted Grove with:
-- stronger visual design
-- improved use of the best reference art
-- upgraded game cards and panels
-- rebuilt Potion of Words mechanic
-- no annoying auto-speech in tasks
-- optional ambience (off by default)
+Major rebuild:
+- no embedded reference screenshots
+- no music or synthetic speech
+- Rune Run: keyboard/touch maze collecting sentence chunks
+- Potion Rush: timed arcade word-orb catching
+- Portrait Hunt: timed reading-memory hidden-object rounds
+- Moon Tree global progression and rewards
+- static GitHub Pages compatible
 
-Files to upload to GitHub root:
+Upload these items to the repository root:
 - index.html
 - styles.css
 - app.js
 - assets/
-
-Then publish with GitHub Pages from the root of the main branch.
+- README.md

@@ -3,295 +3,250 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0a1220">
-  <title>Enchanted Grove — Deluxe Edition</title>
+  <meta name="theme-color" content="#07111d">
+  <title>Enchanted Grove — Arcade Adventure</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="magicCursor" aria-hidden="true"></div>
-  <div id="cursorTrail" aria-hidden="true"></div>
-
-  <audio id="ambientAudio" src="assets/audio/forest_ambient_loop.wav" loop preload="auto"></audio>
+  <div id="cursorCore" aria-hidden="true"></div>
+  <div id="cursorGlow" aria-hidden="true"></div>
 
   <header class="topbar">
-    <button class="brand" data-nav="home"><span class="brand-glyph">✦</span><span>Enchanted Grove</span></button>
-    <nav class="mini-nav">
-      <button class="nav-pill" data-nav="home">Grove</button>
-      <button class="nav-pill" data-nav="spell">Spell Path</button>
-      <button class="nav-pill" data-nav="potion">Potion</button>
-      <button class="nav-pill" data-nav="portraits">Portraits</button>
-      <button class="nav-pill settings-pill" data-action="settings">Settings</button>
-    </nav>
+    <button class="logo-btn" data-nav="home"><span>✦</span> Enchanted Grove</button>
+    <div class="top-actions">
+      <button class="top-btn" id="sfxToggle" title="Sound effects">SFX</button>
+      <button class="top-btn" data-action="settings">Settings</button>
+    </div>
   </header>
 
-  <main id="app">
+  <main>
     <!-- HOME -->
-    <section class="screen is-active" id="homeScreen">
-      <div class="home-background"></div>
-      <div class="home-sparkles"></div>
-      <img class="home-fairy-main" src="assets/images/fairy_alt.webp" alt="Fairy guardian of the Enchanted Grove">
-      <img class="home-fairy-side" src="assets/images/fairy_halfbody.webp" alt="" aria-hidden="true">
+    <section id="home" class="screen active home-screen">
+      <div class="home-bg"></div>
+      <div class="fireflies" aria-hidden="true"></div>
+      <img class="hero-fairy" src="assets/images/fairy_alt.webp" alt="Fairy guardian">
 
-      <section class="hero-card ornate-panel">
-        <div class="eyebrow">Deluxe English fantasy game library</div>
-        <h1>Enchanted <span>Grove</span></h1>
-        <p class="hero-lead">A richer, brighter, more magical version of the Grove.</p>
-        <p class="hero-copy">Restore the Moon Tree through three visually upgraded adventures: build shining sentences, brew living lexical potions and solve the secrets of whispering portraits.</p>
-        <div class="hero-buttons">
-          <button class="btn btn-primary" data-scroll="gamesSection">Choose a game</button>
-          <button class="btn btn-ghost" data-info="home">How it works</button>
+      <div class="hero-copy">
+        <div class="kicker">English adventure · three different game genres</div>
+        <h1>Enchanted<br><em>Grove</em></h1>
+        <p class="hero-line">Learn English by moving, collecting, brewing and exploring.</p>
+        <p class="hero-desc">The Moon Tree has gone dark. Restore three magical relics by completing three genuinely different games — not three quizzes.</p>
+        <div class="hero-actions">
+          <button class="primary" data-scroll="gameDock">Choose Adventure</button>
+          <button class="secondary" data-info="home">How it works</button>
         </div>
-      </section>
+      </div>
 
-      <aside class="world-panel ornate-panel">
-        <div class="panel-head">Moon Tree Progress</div>
-        <div class="tree-frame">
-          <img id="homeTreeImage" src="assets/images/tree0.webp" alt="Moon Tree">
+      <aside class="tree-console">
+        <div class="tiny-title">Moon Tree</div>
+        <div class="tree-window"><img id="treeImage" src="assets/images/tree0.webp" alt="Moon Tree progress"></div>
+        <strong id="treeCount">0 / 3 relics restored</strong>
+        <span id="treeStatus">The Grove is sleeping.</span>
+        <div class="relic-strip">
+          <div class="relic" id="relicSpell"><img src="assets/images/firefly_ember.png" alt=""><small>Ember</small></div>
+          <div class="relic" id="relicPotion"><img src="assets/images/moon_drop.png" alt=""><small>Drop</small></div>
+          <div class="relic" id="relicPortrait"><img src="assets/images/whisper_leaf.png" alt=""><small>Leaf</small></div>
         </div>
-        <div class="tree-copy">
-          <strong id="homeTreeLabel">0 / 3 relics returned</strong>
-          <span id="homeTreeStatus">The Grove still sleeps.</span>
-        </div>
-        <div class="reward-row">
-          <div class="reward-token" id="tokenSpell"><img src="assets/images/firefly_ember.png" alt="Firefly Ember"><span>Spell</span></div>
-          <div class="reward-token" id="tokenPotion"><img src="assets/images/moon_drop.png" alt="Moon Drop"><span>Potion</span></div>
-          <div class="reward-token" id="tokenPortraits"><img src="assets/images/whisper_leaf.png" alt="Whisper Leaf"><span>Portraits</span></div>
-        </div>
-        <button class="btn btn-ghost small-btn" data-action="finale-preview">See the final awakening</button>
       </aside>
 
-      <section class="reference-mural ornate-panel">
-        <div class="panel-head">Mood of the Grove</div>
-        <img src="assets/images/homepage_primary.webp" alt="Grand visual reference of the Enchanted Grove">
-      </section>
-
-      <section class="games-grid" id="gamesSection">
-        <article class="game-card deluxe-card" data-card="spell">
-          <div class="card-illustration"><img src="assets/images/spell_reference.webp" alt="Spell Path reference"></div>
-          <div class="card-body">
-            <div class="card-topline">Grammar · sentence building · movement</div>
-            <h2>Spell Path</h2>
-            <p>Rebuild a glowing road through the enchanted forest by arranging English chunks into powerful sentences.</p>
-            <div class="chip-row"><span>Word order</span><span>Present tenses</span><span>Questions</span></div>
-            <div class="action-row">
-              <button class="btn btn-primary" data-start="spell">Play</button>
-              <button class="btn btn-ghost" data-info="spell">How to play</button>
+      <section class="game-dock" id="gameDock">
+        <article class="portal-card spell-card" data-card="spell">
+          <div class="portal-art"></div>
+          <div class="portal-content">
+            <div class="genre">Movement maze · grammar</div>
+            <h2>Rune Run</h2>
+            <p>Move the fairy through a magical maze and collect sentence chunks in the correct English order.</p>
+            <div class="tags"><span>WASD / arrows</span><span>Word order</span><span>5 stages</span></div>
+            <div class="card-actions">
+              <button class="primary" data-start="spell">Play</button>
+              <button class="secondary" data-info="spell">How to Play</button>
             </div>
           </div>
         </article>
 
-        <article class="game-card deluxe-card" data-card="potion">
-          <div class="card-illustration"><img src="assets/images/potion_reference.webp" alt="Potion of Words reference"></div>
-          <div class="card-body">
-            <div class="card-topline">Vocabulary · chunks · collocations</div>
-            <h2>Potion of Words</h2>
-            <p>Brew richer potions by pairing the correct halves of English chunks and unlocking layered recipe stages.</p>
-            <div class="chip-row"><span>Chunks</span><span>Collocations</span><span>Examples</span></div>
-            <div class="action-row">
-              <button class="btn btn-primary" data-start="potion">Play</button>
-              <button class="btn btn-ghost" data-info="potion">How to play</button>
+        <article class="portal-card potion-card" data-card="potion">
+          <div class="portal-art"></div>
+          <div class="portal-content">
+            <div class="genre">Arcade catch · collocations</div>
+            <h2>Potion Rush</h2>
+            <p>Catch the two correct word-orbs before time runs out and brew natural English chunks.</p>
+            <div class="tags"><span>Fast rounds</span><span>Chunks</span><span>Combo</span></div>
+            <div class="card-actions">
+              <button class="primary" data-start="potion">Play</button>
+              <button class="secondary" data-info="potion">How to Play</button>
             </div>
           </div>
         </article>
 
-        <article class="game-card deluxe-card" data-card="portraits">
-          <div class="card-illustration"><img src="assets/images/portraits_reference.webp" alt="Whispering Portraits reference"></div>
-          <div class="card-body">
-            <div class="card-topline">Reading · clues · meaning in context</div>
-            <h2>Whispering Portraits</h2>
-            <p>Read the whispers of magical characters, understand the meaning and solve elegant clue-based challenges.</p>
-            <div class="chip-row"><span>Reading</span><span>Meaning</span><span>Detail</span></div>
-            <div class="action-row">
-              <button class="btn btn-primary" data-start="portraits">Play</button>
-              <button class="btn btn-ghost" data-info="portraits">How to play</button>
+        <article class="portal-card portrait-card-home" data-card="portrait">
+          <div class="portal-art"></div>
+          <div class="portal-content">
+            <div class="genre">Memory hunt · reading</div>
+            <h2>Portrait Hunt</h2>
+            <p>Read a magical whisper, remember the key detail, then find the right object before the lantern fades.</p>
+            <div class="tags"><span>Memory</span><span>Reading</span><span>Hidden objects</span></div>
+            <div class="card-actions">
+              <button class="primary" data-start="portrait">Play</button>
+              <button class="secondary" data-info="portrait">How to Play</button>
             </div>
           </div>
         </article>
       </section>
     </section>
 
-    <!-- SPELL PATH -->
-    <section class="screen game-screen spell-screen" id="spellScreen">
-      <div class="scene-bg scene-spell"></div>
-      <div class="scene-overlay crimson"></div>
-      <img class="scene-fairy spell-fairy" src="assets/images/fairy_alt.webp" alt="" aria-hidden="true">
+    <!-- RUNE RUN -->
+    <section id="spell" class="screen game-screen">
+      <div class="game-bg spell-bg"></div>
+      <div class="darken"></div>
 
-      <div class="hud deluxe-hud">
-        <button class="hud-btn" data-nav="home">← Grove</button>
-        <div class="hud-center">
-          <span class="hud-title">Spell Path</span>
-          <div class="progress-track"><div class="progress-fill amber" id="spellBar"></div></div>
-          <span class="hud-note" id="spellLabel">0 / 10 sentences restored</span>
+      <div class="game-header">
+        <button class="round-btn" data-nav="home">←</button>
+        <div class="game-title-block">
+          <span>Rune Run</span>
+          <div class="bar"><div id="spellProgress"></div></div>
+          <small id="spellStageText">Stage 1 / 5</small>
         </div>
-        <div class="hud-actions">
-          <button class="hud-btn" data-info="spell">?</button>
-          <button class="hud-btn" data-reset="spell">↻</button>
-        </div>
+        <button class="round-btn" data-reset="spell">↻</button>
       </div>
 
-      <div class="game-layout spell-layout">
-        <section class="mission-panel ornate-panel">
-          <div class="panel-head">Mission Scroll</div>
-          <div class="stage-badge" id="spellStageName">Lantern Steps</div>
+      <div class="spell-game-wrap">
+        <aside class="quest-card">
+          <div class="tiny-title">Current spell</div>
           <h2 id="spellFocus">Present Simple</h2>
-          <p>Arrange the chunks in natural English order. Each correct sentence restores part of the magical road.</p>
-          <div class="path-ribbon" id="pathRibbon"></div>
-          <div class="spell-score">
-            <div><strong id="spellRestored">0</strong><span>path stones</span></div>
-            <div><strong id="spellBloomed">0</strong><span>blooms</span></div>
-          </div>
-          <div class="feedback-box" id="spellFeedback"></div>
-        </section>
+          <p id="spellClue">Collect the glowing chunks in natural English order.</p>
+          <div class="collected-strip" id="collectedStrip"></div>
+          <div class="hearts" id="spellHearts"></div>
+          <div class="quest-feedback" id="spellFeedback">Use WASD or arrow keys.</div>
+        </aside>
 
-        <section class="board-panel ornate-panel">
-          <div class="panel-head">Sentence Forge</div>
-          <div class="answer-lane" id="spellSlots"></div>
-          <div class="chunk-bank" id="spellChunkBank"></div>
-          <div class="work-actions">
-            <button class="btn btn-ghost" id="spellHintBtn">Hint</button>
-            <button class="btn btn-primary" id="spellCheckBtn">Restore the path</button>
+        <section class="maze-shell">
+          <div id="maze" class="maze" tabindex="0" aria-label="Rune Run maze"></div>
+          <div class="mobile-pad">
+            <button data-move="up">▲</button>
+            <div><button data-move="left">◀</button><button data-move="down">▼</button><button data-move="right">▶</button></div>
           </div>
         </section>
 
-        <aside class="art-panel ornate-panel">
-          <div class="panel-head">Path Vision</div>
-          <img class="art-preview" src="assets/images/spell_reference.webp" alt="Spell Path visual reference">
+        <aside class="objective-card">
+          <img src="assets/images/fairy.webp" alt="" aria-hidden="true">
+          <div class="tiny-title">Goal</div>
+          <p>Collect all four chunks <b>in order</b>, then reach the glowing gate.</p>
+          <div class="mini-stat"><strong id="spellCorrect">0</strong><span>runes collected</span></div>
+          <div class="mini-stat"><strong id="spellWrong">0</strong><span>curses triggered</span></div>
         </aside>
       </div>
     </section>
 
-    <!-- POTION -->
-    <section class="screen game-screen potion-screen" id="potionScreen">
-      <div class="scene-bg scene-potion"></div>
-      <div class="scene-overlay violet"></div>
-      <img class="scene-fairy potion-fairy" src="assets/images/fairy_alt.webp" alt="" aria-hidden="true">
+    <!-- POTION RUSH -->
+    <section id="potion" class="screen game-screen">
+      <div class="game-bg potion-bg"></div>
+      <div class="darken potion-shade"></div>
 
-      <div class="hud deluxe-hud">
-        <button class="hud-btn" data-nav="home">← Grove</button>
-        <div class="hud-center">
-          <span class="hud-title">Potion of Words</span>
-          <div class="progress-track"><div class="progress-fill violet-fill" id="potionBar"></div></div>
-          <span class="hud-note" id="potionLabel">0 / 12 potions brewed</span>
+      <div class="game-header">
+        <button class="round-btn" data-nav="home">←</button>
+        <div class="game-title-block">
+          <span>Potion Rush</span>
+          <div class="bar"><div id="potionProgress"></div></div>
+          <small id="potionRoundText">Round 1 / 10</small>
         </div>
-        <div class="hud-actions">
-          <button class="hud-btn" data-info="potion">?</button>
-          <button class="hud-btn" data-reset="potion">↻</button>
-        </div>
+        <button class="round-btn" data-reset="potion">↻</button>
       </div>
 
-      <div class="game-layout potion-layout">
-        <section class="mission-panel ornate-panel">
-          <div class="panel-head">Current Recipe</div>
-          <div class="level-badge" id="potionLevelBadge">Everyday Magic</div>
-          <h2 id="potionPrompt">Choose the chunk that matches the clue.</h2>
-          <p id="potionClue">Clue appears here.</p>
-          <div class="cauldron-wrap">
-            <div class="cauldron deluxe-cauldron">
-              <div class="liquid" id="cauldronLiquid"></div>
-              <div class="cauldron-core">✧</div>
+      <div class="potion-game-wrap">
+        <aside class="recipe-card">
+          <div class="tiny-title">Recipe clue</div>
+          <h2 id="recipeTitle">Choose a natural English chunk</h2>
+          <p id="recipeClue">Clue</p>
+          <div class="timer-ring"><span id="potionTimer">15</span><small>seconds</small></div>
+          <div class="combo">Combo <strong id="comboCount">0</strong></div>
+          <div class="purity" id="purityMeter"></div>
+        </aside>
+
+        <section class="rush-arena">
+          <div class="cauldron-stage">
+            <div class="cauldron-v3">
+              <div class="brew-liquid" id="brewLiquid"></div>
+              <div class="brew-symbol">✦</div>
+            </div>
+            <div class="brew-slots">
+              <div id="brewSlotA">Catch first half</div>
+              <span>+</span>
+              <div id="brewSlotB">Catch second half</div>
             </div>
           </div>
-          <div class="potion-shelf" id="potionShelf"></div>
-          <div class="feedback-box" id="potionFeedback"></div>
+          <div class="orb-field" id="orbField"></div>
+          <div class="rush-feedback" id="potionFeedback">Catch the correct two orbs.</div>
         </section>
 
-        <section class="board-panel ornate-panel">
-          <div class="panel-head">Choose the chunk halves</div>
-          <div class="selection-strip">
-            <button class="mix-display" id="selectedLeft">First half</button>
-            <span class="mix-plus">+</span>
-            <button class="mix-display" id="selectedRight">Second half</button>
-          </div>
-          <div class="columns">
-            <div>
-              <div class="column-label">Possible first halves</div>
-              <div class="option-grid" id="potionLeftOptions"></div>
-            </div>
-            <div>
-              <div class="column-label">Possible second halves</div>
-              <div class="option-grid" id="potionRightOptions"></div>
-            </div>
-          </div>
-          <div class="work-actions">
-            <button class="btn btn-ghost" id="potionHintBtn">Hint</button>
-            <button class="btn btn-primary" id="potionBrewBtn">Brew potion</button>
-          </div>
-          <div class="example-box" id="potionExampleBox"></div>
-        </section>
-
-        <aside class="art-panel ornate-panel">
-          <div class="panel-head">Potion Vision</div>
-          <img class="art-preview" src="assets/images/potion_reference.webp" alt="Potion of Words visual reference">
+        <aside class="potion-side">
+          <div class="tiny-title">Potion shelf</div>
+          <div class="bottle-grid" id="bottleGrid"></div>
+          <div class="example-toast" id="exampleToast">Correct chunks will appear here with a natural example.</div>
         </aside>
       </div>
     </section>
 
-    <!-- PORTRAITS -->
-    <section class="screen game-screen portraits-screen" id="portraitsScreen">
-      <div class="scene-bg scene-portraits"></div>
-      <div class="scene-overlay emerald"></div>
-      <img class="scene-fairy portraits-fairy" src="assets/images/fairy_halfbody.webp" alt="" aria-hidden="true">
+    <!-- PORTRAIT HUNT -->
+    <section id="portrait" class="screen game-screen">
+      <div class="game-bg portrait-bg"></div>
+      <div class="darken portrait-shade"></div>
 
-      <div class="hud deluxe-hud">
-        <button class="hud-btn" data-nav="home">← Grove</button>
-        <div class="hud-center">
-          <span class="hud-title">Whispering Portraits</span>
-          <div class="progress-track"><div class="progress-fill green-fill" id="portraitsBar"></div></div>
-          <span class="hud-note" id="portraitsLabel">0 / 12 clues solved</span>
+      <div class="game-header">
+        <button class="round-btn" data-nav="home">←</button>
+        <div class="game-title-block">
+          <span>Portrait Hunt</span>
+          <div class="bar"><div id="portraitProgress"></div></div>
+          <small id="portraitRoundText">Mystery 1 / 8</small>
         </div>
-        <div class="hud-actions">
-          <button class="hud-btn" data-info="portraits">?</button>
-          <button class="hud-btn" data-reset="portraits">↻</button>
-        </div>
+        <button class="round-btn" data-reset="portrait">↻</button>
       </div>
 
-      <div class="game-layout portraits-layout">
-        <section class="gallery-panel ornate-panel">
-          <div class="panel-head">Living Gallery</div>
-          <div class="portrait-grid" id="portraitGrid"></div>
+      <div class="portrait-game-wrap">
+        <section class="gallery-wall" id="galleryWall"></section>
+
+        <section class="memory-scroll" id="memoryScroll">
+          <div class="tiny-title">Remember the whisper</div>
+          <h2 id="whisperSpeaker">Rowan says...</h2>
+          <p id="whisperText"></p>
+          <div class="memory-countdown"><span id="memoryTime">6</span> seconds</div>
         </section>
 
-        <section class="mission-panel ornate-panel">
-          <div class="panel-head">Whisper Scroll</div>
-          <div class="level-badge green-badge" id="portraitsFocus">Meaning in context</div>
-          <h2 id="portraitQuestion">Question...</h2>
-          <div class="scroll-quote" id="portraitText">Text...</div>
-          <div class="answer-stack" id="portraitChoices"></div>
-          <div class="feedback-box" id="portraitFeedback"></div>
+        <section class="hunt-panel hidden" id="huntPanel">
+          <div class="tiny-title">Find the answer</div>
+          <h2 id="huntQuestion"></h2>
+          <p>The whisper has faded. Click the object that proves you understood the key detail.</p>
+          <div class="object-grid" id="objectGrid"></div>
+          <div class="streak">Streak <strong id="portraitStreak">0</strong></div>
+          <div class="hunt-feedback" id="portraitFeedback">Choose carefully.</div>
         </section>
-
-        <aside class="art-panel ornate-panel">
-          <div class="panel-head">Gallery Vision</div>
-          <img class="art-preview" src="assets/images/portraits_reference.webp" alt="Whispering Portraits visual reference">
-        </aside>
       </div>
     </section>
 
     <!-- FINALE -->
-    <section class="screen finale-screen" id="finaleScreen">
-      <div class="finale-background"></div>
-      <div class="finale-glow"></div>
-      <img class="finale-fairy" src="assets/images/fairy_alt.webp" alt="The fairy guardian beside the awakened Moon Tree">
-      <section class="finale-card ornate-panel">
-        <div class="eyebrow">All relics returned</div>
-        <h1>The Grove <span>Awakens</span></h1>
-        <p>The Moon Tree shines again. Your English restored the road, empowered the potions and revealed the portraits' secrets.</p>
-        <div class="final-reward-row">
+    <section id="finale" class="screen finale-screen">
+      <div class="finale-bg"></div>
+      <div class="finale-wash"></div>
+      <img class="finale-fairy" src="assets/images/fairy_alt.webp" alt="Fairy guardian">
+      <div class="finale-copy">
+        <div class="kicker">All three relics restored</div>
+        <h1>The Grove<br><em>Awakens</em></h1>
+        <p>You moved through the runes, mastered natural English chunks and solved the hidden portrait clues.</p>
+        <div class="final-relics">
           <img src="assets/images/firefly_ember.png" alt="Firefly Ember">
           <img src="assets/images/moon_drop.png" alt="Moon Drop">
           <img src="assets/images/whisper_leaf.png" alt="Whisper Leaf">
         </div>
-        <div class="hero-buttons">
-          <button class="btn btn-primary" id="restartAllBtn">Play again</button>
-          <button class="btn btn-ghost" data-nav="home">Back to the Grove</button>
+        <div class="hero-actions">
+          <button class="primary" id="playAgain">Play Again</button>
+          <button class="secondary" data-nav="home">Back to Grove</button>
         </div>
-      </section>
+      </div>
     </section>
   </main>
 
   <div class="modal-backdrop" id="modalBackdrop" hidden>
-    <div class="modal ornate-panel" id="modalPanel">
-      <button class="modal-close" id="modalClose">×</button>
+    <div class="modal">
+      <button class="modal-x" id="modalX">×</button>
       <div id="modalBody"></div>
     </div>
   </div>
