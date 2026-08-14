@@ -1,15 +1,17 @@
-# Enchanted Grove
+# Enchanted Grove — Deluxe Edition
 
-A static educational fantasy game site with three original English-learning mini-games:
+This is an upgraded static version of Enchanted Grove with:
+- stronger visual design
+- improved use of the best reference art
+- upgraded game cards and panels
+- rebuilt Potion of Words mechanic
+- no annoying auto-speech in tasks
+- optional ambience (off by default)
 
-- Spell Path — sentence building and grammar in context
-- Potion of Words — collocations and lexical chunks
-- Whispering Portraits — listening comprehension
+Files to upload to GitHub root:
+- index.html
+- styles.css
+- app.js
+- assets/
 
-No backend or API keys required. Works as static files and can be deployed to GitHub Pages.
-
-## Run locally
-Open `index.html` in a modern browser. For the most consistent audio behavior, serve the folder with any simple local HTTP server.
-
-## GitHub Pages
-Upload the entire folder to the repository root and enable Pages from the main branch/root.
+Then publish with GitHub Pages from the root of the main branch.

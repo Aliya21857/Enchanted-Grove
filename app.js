@@ -2,526 +2,547 @@
 (() => {
   "use strict";
 
-  // -------- CONTENT --------
+  // ---------------- STATE ----------------
+  const defaultState = {
+    spellCompleted:false,
+    potionCompleted:false,
+    portraitsCompleted:false,
+    ambienceEnabled:false,
+    sfxEnabled:true,
+    volume:0.4,
+    reducedMotion:false
+  };
+  let state = loadState();
+  function loadState(){
+    try{return {...defaultState, ...JSON.parse(localStorage.getItem("enchantedGroveV2") || "{}")};}
+    catch{return {...defaultState};}
+  }
+  function saveState(){
+    localStorage.setItem("enchantedGroveV2", JSON.stringify(state));
+    updateHome();
+  }
+
+  // ---------------- DATA ----------------
   const spellStages = [
     {name:"Lantern Steps", tasks:[
-      {chunks:["every day.","to school","My brother","goes"], answer:["My brother","goes","to school","every day."], focus:"Present Simple", hint:"Start with the person. Then use the verb, place and time."},
-      {chunks:["usually","We","after school.","play football"], answer:["We","usually","play football","after school."], focus:"Frequency adverbs", hint:"Frequency adverbs often go before the main verb."},
-      {chunks:["breakfast","at seven.","has","Mia"], answer:["Mia","has","breakfast","at seven."], focus:"Present Simple", hint:"Who? → action → object → time."}
+      {answer:["My brother","goes","to school","every day."], chunks:["to school","every day.","goes","My brother"], focus:"Present Simple", hint:"Start with the subject. Then verb, place, time."},
+      {answer:["We","usually","play football","after school."], chunks:["after school.","play football","We","usually"], focus:"Frequency adverbs", hint:"Usually goes before the main verb."},
+      {answer:["Mia","has","breakfast","at seven."], chunks:["breakfast","at seven.","Mia","has"], focus:"Present Simple", hint:"Who? → action → object → time."}
     ]},
     {name:"Moon Bridge", tasks:[
-      {chunks:["a book","is reading","now.","She"], answer:["She","is reading","a book","now."], focus:"Present Continuous", hint:"Present Continuous: subject + am/is/are + verb-ing."},
-      {chunks:["are","in the garden.","The children","playing"], answer:["The children","are","playing","in the garden."], focus:"Present Continuous", hint:"Plural subject → are + verb-ing."},
-      {chunks:["today.","isn't wearing","Tom","his jacket"], answer:["Tom","isn't wearing","his jacket","today."], focus:"Negative Present Continuous", hint:"Negative: subject + isn't/aren't + verb-ing."}
+      {answer:["She","is reading","a book","now."], chunks:["She","a book","is reading","now."], focus:"Present Continuous", hint:"Subject + am/is/are + verb-ing."},
+      {answer:["The children","are","playing","in the garden."], chunks:["playing","The children","in the garden.","are"], focus:"Present Continuous", hint:"Plural subject uses are."},
+      {answer:["Tom","isn't wearing","his jacket","today."], chunks:["his jacket","today.","Tom","isn't wearing"], focus:"Negative Present Continuous", hint:"Negative form: isn't + verb-ing."}
     ]},
     {name:"Whisper Gate", tasks:[
-      {chunks:["rainy weather.","don't like","We"], answer:["We","don't like","rainy weather."], focus:"Negative Present Simple", hint:"Subject + don't/doesn't + base verb."},
-      {chunks:["on Sundays?","football","Do","they","play"], answer:["Do","they","play","football","on Sundays?"], focus:"Present Simple question", hint:"Questions begin with Do/Does, then subject, then base verb."},
-      {chunks:["doing","What","you","are","now?"], answer:["What","are","you","doing","now?"], focus:"Present Continuous question", hint:"Question word + am/is/are + subject + verb-ing."},
-      {chunks:["always","before bed.","reads","She"], answer:["She","always","reads","before bed."], focus:"Frequency adverbs", hint:"Always usually comes before the main verb."}
+      {answer:["We","don't like","rainy weather."], chunks:["rainy weather.","We","don't like"], focus:"Negative Present Simple", hint:"Subject first, then don't like."},
+      {answer:["Do","they","play","football","on Sundays?"], chunks:["football","they","Do","on Sundays?","play"], focus:"Present Simple questions", hint:"Question starts with Do."},
+      {answer:["What","are","you","doing","now?"], chunks:["doing","What","you","are","now?"], focus:"Present Continuous questions", hint:"Question word + are + subject + verb-ing."},
+      {answer:["She","always","reads","before bed."], chunks:["reads","She","before bed.","always"], focus:"Frequency adverbs", hint:"Always comes before the main verb."}
     ]}
   ];
 
-  const potionLevels = [
-    {name:"Everyday Magic", pairs:[["do","homework"],["have","breakfast"],["take","a photo"],["make","a mistake"],["go","shopping"]]},
-    {name:"People & Feelings", pairs:[["be good","at"],["be interested","in"],["be afraid","of"],["be proud","of"],["be kind","to"]]},
-    {name:"Daily Adventures", pairs:[["look","for"],["listen","to"],["wait","for"],["talk","to"],["ask","for"]]},
-    {name:"Grove Mastery", pairs:[["make","a decision"],["take care","of"],["look forward","to"],["get ready","for"],["spend time","with"]]}
+  const potionRounds = [
+    {stage:"Everyday Magic", clue:"Choose the chunk that means: school work you do at home.", target:["do","homework"], example:"I do my homework after dinner.", left:["do","make","have","take"], right:["homework","a mistake","breakfast","a photo"]},
+    {stage:"Everyday Magic", clue:"Choose the phrase for the morning meal.", target:["have","breakfast"], example:"We have breakfast at seven.", left:["have","go","take","make"], right:["shopping","a photo","breakfast","a decision"]},
+    {stage:"Everyday Magic", clue:"Choose the chunk that means: use a camera.", target:["take","a photo"], example:"Can you take a photo of us?", left:["make","take","be proud","go"], right:["a photo","of","shopping","a mistake"]},
+    {stage:"Everyday Magic", clue:"Choose the phrase for a wrong action or error.", target:["make","a mistake"], example:"It's okay to make a mistake.", left:["make","do","take","listen"], right:["a mistake","to","a photo","homework"]},
+
+    {stage:"People & Feelings", clue:"Choose the chunk that means: to like and care about a topic.", target:["be interested","in"], example:"I'm interested in space.", left:["be interested","be good","be kind","be afraid"], right:["at","to","of","in"]},
+    {stage:"People & Feelings", clue:"Choose the phrase for a skill or talent.", target:["be good","at"], example:"Mia is good at drawing.", left:["be proud","be good","be kind","be afraid"], right:["to","of","at","in"]},
+    {stage:"People & Feelings", clue:"Choose the phrase that means: scared of something.", target:["be afraid","of"], example:"He is afraid of spiders.", left:["be afraid","be good","be proud","be interested"], right:["to","at","of","in"]},
+    {stage:"People & Feelings", clue:"Choose the chunk that means: treat others nicely.", target:["be kind","to"], example:"Please be kind to animals.", left:["be kind","be good","be proud","be interested"], right:["to","in","of","at"]},
+
+    {stage:"Daily Adventures", clue:"Choose the chunk that means: search for something.", target:["look","for"], example:"I'm looking for my keys.", left:["ask","talk","look","wait"], right:["for","to","for","with"]},
+    {stage:"Daily Adventures", clue:"Choose the phrase that means: stay until someone comes.", target:["wait","for"], example:"Please wait for me.", left:["go","wait","listen","look"], right:["to","for","shopping","with"]},
+    {stage:"Daily Adventures", clue:"Choose the phrase that means: speak with a person.", target:["talk","to"], example:"I need to talk to my teacher.", left:["talk","ask","listen","look"], right:["to","for","to","with"]},
+    {stage:"Daily Adventures", clue:"Choose the phrase that means: request help or information.", target:["ask","for"], example:"You can ask for help.", left:["ask","listen","look","get ready"], right:["to","for","with","at"]},
+
+    {stage:"Grove Mastery", clue:"Choose the phrase that means: choose what to do.", target:["make","a decision"], example:"We need to make a decision.", left:["make","look forward","take care","get ready"], right:["with","for","a decision","of"]},
+    {stage:"Grove Mastery", clue:"Choose the phrase that means: protect and help something or someone.", target:["take care","of"], example:"I take care of my little brother.", left:["take care","spend time","look forward","make"], right:["of","with","to","a decision"]},
+    {stage:"Grove Mastery", clue:"Choose the phrase that means: feel happy about something in the future.", target:["look forward","to"], example:"I look forward to the holidays.", left:["get ready","look forward","spend time","take care"], right:["to","with","of","for"]},
+    {stage:"Grove Mastery", clue:"Choose the chunk that means: be together with someone.", target:["spend time","with"], example:"I like to spend time with my friends.", left:["spend time","take care","look forward","be kind"], right:["at","with","of","to"]},
   ];
 
-  const phraseExamples = {
-    "do homework":"I do my homework after dinner.",
-    "have breakfast":"We have breakfast at seven.",
-    "take a photo":"Can you take a photo of us?",
-    "make a mistake":"It's okay to make a mistake.",
-    "go shopping":"We go shopping on Saturdays.",
-    "be good at":"Mia is good at drawing.",
-    "be interested in":"I'm interested in space.",
-    "be afraid of":"He is afraid of spiders.",
-    "be proud of":"She is proud of her project.",
-    "be kind to":"Please be kind to animals.",
-    "look for":"I'm looking for my keys.",
-    "listen to":"We listen to music after school.",
-    "wait for":"Please wait for me.",
-    "talk to":"I need to talk to my teacher.",
-    "ask for":"You can ask for help.",
-    "make a decision":"We need to make a decision.",
-    "take care of":"I take care of my little brother.",
-    "look forward to":"I look forward to the holidays.",
-    "get ready for":"Let's get ready for school.",
-    "spend time with":"I like to spend time with my friends."
-  };
-
-  const portraitCharacters = [
-    {id:"rowan", name:"Rowan", trait:"forest messenger", img:"assets/images/portrait_01.webp", pitch:.88, rate:.92},
-    {id:"liora", name:"Liora", trait:"storykeeper", img:"assets/images/portrait_02.webp", pitch:1.16, rate:.96},
-    {id:"arlen", name:"Arlen", trait:"travelling musician", img:"assets/images/portrait_03.webp", pitch:.94, rate:1.02},
-    {id:"poppy", name:"Grandma Poppy", trait:"baker", img:"assets/images/portrait_04.webp", pitch:1.04, rate:.88},
-    {id:"timble", name:"Timble", trait:"young explorer", img:"assets/images/portrait_05.webp", pitch:1.24, rate:1.0},
-    {id:"hootwell", name:"Professor Hootwell", trait:"scholar", img:"assets/images/portrait_06.webp", pitch:.76, rate:.86}
+  const portraitPeople = [
+    {id:"rowan", name:"Rowan", img:"assets/images/portrait_01.webp"},
+    {id:"liora", name:"Liora", img:"assets/images/portrait_02.webp"},
+    {id:"arlen", name:"Arlen", img:"assets/images/portrait_03.webp"},
+    {id:"poppy", name:"Grandma Poppy", img:"assets/images/portrait_04.webp"},
+    {id:"timble", name:"Timble", img:"assets/images/portrait_05.webp"},
+    {id:"hootwell", name:"Professor Hootwell", img:"assets/images/portrait_06.webp"},
   ];
 
-  const portraitTasks = [
-    {speaker:"rowan", line:"I usually wake up early, but today I'm still tired because I travelled all night.", question:"Why is Rowan tired today?", answer:"He travelled all night.", focus:"Listening for detail"},
-    {speaker:"liora", line:"I'm looking for my red book. I need it for the story circle tonight.", question:"What is Liora looking for?", answer:"Her red book.", focus:"Listening for detail"},
-    {speaker:"arlen", line:"Every Friday I play music by the river, but tonight I'm playing in the Moon Hall.", question:"Where is Arlen playing tonight?", answer:"In the Moon Hall.", focus:"Present Simple vs Continuous"},
-    {speaker:"poppy", line:"The apple pies are in the oven now. I bake them every Sunday for the children.", question:"What is Grandma Poppy making now?", answer:"Apple pies.", focus:"Listening for detail"},
-    {speaker:"timble", line:"I don't like loud places. I'm waiting behind the old oak until the festival becomes quieter.", question:"Where is Timble waiting?", answer:"Behind the old oak.", focus:"Prepositions of place"},
-    {speaker:"hootwell", line:"I teach young explorers how to read maps. Today we're learning how to find north by the stars.", question:"What are they learning today?", answer:"How to find north by the stars.", focus:"Listening for gist"},
-    {speaker:"liora", line:"My sister usually visits me on Saturdays, but this weekend she's staying at home.", question:"Is Liora's sister visiting this weekend?", answer:"No, she is staying at home.", focus:"Present Simple vs Continuous"},
-    {speaker:"arlen", line:"Please listen carefully. The silver key is under the small blue box, not beside it.", question:"Where is the silver key?", answer:"Under the small blue box.", focus:"Prepositions of place"},
-    {speaker:"poppy", line:"I need some honey for the cakes. Could you bring me the jar next to the flowers?", question:"What does Grandma Poppy need?", answer:"Honey.", focus:"Everyday vocabulary"},
-    {speaker:"rowan", line:"I never fly through the dark valley alone. I usually take the lantern path.", question:"Which path does Rowan usually take?", answer:"The lantern path.", focus:"Frequency adverbs"},
-    {speaker:"timble", line:"I'm carrying a little map because I want to find the hidden waterfall.", question:"Why is Timble carrying a map?", answer:"To find the hidden waterfall.", focus:"Listening for purpose"},
-    {speaker:"hootwell", line:"Remember: we use the present continuous for actions happening now.", question:"Which tense does Professor Hootwell mention?", answer:"The present continuous.", focus:"Grammar awareness"}
+  const portraitRounds = [
+    {speaker:"rowan", focus:"Meaning in context", text:"I usually wake up early, but today I'm still tired because I travelled all night.", question:"Why is Rowan tired today?", choices:["He travelled all night.","He is ill.","He lost his lantern.","He woke up late."], answer:"He travelled all night."},
+    {speaker:"liora", focus:"Reading for detail", text:"I'm looking for my red book. I need it for the story circle tonight.", question:"What is Liora looking for?", choices:["A silver key.","Her red book.","A flower basket.","A moon map."], answer:"Her red book."},
+    {speaker:"arlen", focus:"Present Simple vs Continuous", text:"Every Friday I play music by the river, but tonight I'm playing in the Moon Hall.", question:"Where is Arlen playing tonight?", choices:["By the river.","At school.","In the Moon Hall.","In the market."], answer:"In the Moon Hall."},
+    {speaker:"poppy", focus:"Reading for detail", text:"The apple pies are in the oven now. I bake them every Sunday for the children.", question:"What is Grandma Poppy making now?", choices:["Soup.","Apple pies.","Pancakes.","Tea."], answer:"Apple pies."},
+    {speaker:"timble", focus:"Prepositions", text:"I don't like loud places. I'm waiting behind the old oak until the festival becomes quieter.", question:"Where is Timble waiting?", choices:["Under the bridge.","Beside the lantern.","Behind the old oak.","In the Moon Hall."], answer:"Behind the old oak."},
+    {speaker:"hootwell", focus:"Reading for gist", text:"I teach young explorers how to read maps. Today we're learning how to find north by the stars.", question:"What are they learning today?", choices:["How to bake bread.","How to find north by the stars.","How to paint portraits.","How to ride a horse."], answer:"How to find north by the stars."},
+    {speaker:"liora", focus:"Simple vs continuous", text:"My sister usually visits me on Saturdays, but this weekend she's staying at home.", question:"Is Liora's sister visiting this weekend?", choices:["Yes, she is visiting today.","No, she is staying at home.","Yes, she visits every day.","No, she is travelling."], answer:"No, she is staying at home."},
+    {speaker:"arlen", focus:"Prepositions of place", text:"Please listen carefully. The silver key is under the small blue box, not beside it.", question:"Where is the silver key?", choices:["Beside the box.","In the box.","Under the small blue box.","On the shelf."], answer:"Under the small blue box."},
+    {speaker:"poppy", focus:"Functional language", text:"I need some honey for the cakes. Could you bring me the jar next to the flowers?", question:"What does Grandma Poppy need?", choices:["Milk.","Honey.","Sugar.","Jam."], answer:"Honey."},
+    {speaker:"rowan", focus:"Frequency words", text:"I never fly through the dark valley alone. I usually take the lantern path.", question:"Which path does Rowan usually take?", choices:["The river path.","The dark valley path.","The lantern path.","The snow path."], answer:"The lantern path."},
+    {speaker:"timble", focus:"Reading for purpose", text:"I'm carrying a little map because I want to find the hidden waterfall.", question:"Why is Timble carrying a map?", choices:["To buy a book.","To find the hidden waterfall.","To visit the market.","To learn music."], answer:"To find the hidden waterfall."},
+    {speaker:"hootwell", focus:"Grammar awareness", text:"Remember: we use the present continuous for actions happening now.", question:"Which tense does Professor Hootwell mention?", choices:["Past Simple.","Future Simple.","Present Perfect.","Present Continuous."], answer:"Present Continuous."},
   ];
 
-  const screens = {
-    home: document.getElementById("homeScreen"),
-    spell: document.getElementById("spellScreen"),
-    potion: document.getElementById("potionScreen"),
-    portraits: document.getElementById("portraitsScreen"),
-    finale: document.getElementById("finaleScreen")
-  };
+  // ---------------- HELPERS ----------------
+  function qs(sel, root=document){return root.querySelector(sel);}
+  function qsa(sel, root=document){return [...root.querySelectorAll(sel)];}
+  function shuffle(arr){const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
+  function completions(){ return [state.spellCompleted, state.potionCompleted, state.portraitsCompleted].filter(Boolean).length; }
 
-  // -------- STATE --------
-  const defaultState = {
-    spellCompleted:false, potionCompleted:false, portraitsCompleted:false,
-    musicEnabled:true, sfxEnabled:true, masterVolume:.55, reducedMotion:false
-  };
-  let state = loadState();
-  let currentScreen = "home";
-  let lastFocus = null;
-
-  function loadState(){
-    try { return {...defaultState, ...JSON.parse(localStorage.getItem("enchantedGroveState") || "{}")}; }
-    catch { return {...defaultState}; }
-  }
-  function saveState(){
-    localStorage.setItem("enchantedGroveState", JSON.stringify(state));
-    updateHomeProgress();
-  }
-
-  // -------- AUDIO --------
-  const ambient = document.getElementById("ambientAudio");
-  ambient.volume = state.masterVolume * .45;
-  const sfxFiles = {
+  // ---------------- AUDIO ----------------
+  const ambient = qs("#ambientAudio");
+  const sfx = {
     click:"assets/audio/ui_click.wav",
-    correct:"assets/audio/correct_magic.wav",
-    wrong:"assets/audio/wrong_soft.wav",
+    ok:"assets/audio/correct_magic.wav",
+    no:"assets/audio/wrong_soft.wav",
     reward:"assets/audio/reward.wav",
     path:"assets/audio/path_restore.wav",
     bubble:"assets/audio/potion_bubble.wav",
-    speak:"assets/audio/portrait_speaking.wav",
     finale:"assets/audio/finale_cue.wav"
   };
-  const audioCache = {};
-  function playSfx(name, volume=1){
+  function playSfx(name, gain=1){
     if(!state.sfxEnabled) return;
-    const src=sfxFiles[name]; if(!src) return;
-    let a = new Audio(src);
-    a.volume = Math.max(0, Math.min(1, state.masterVolume * volume));
+    const src=sfx[name]; if(!src) return;
+    const a=new Audio(src);
+    a.volume=Math.max(0,Math.min(1,state.volume*gain));
     a.play().catch(()=>{});
   }
-  function ensureAmbient(){
-    ambient.volume = state.masterVolume * .42;
-    if(state.musicEnabled){
-      ambient.play().catch(()=>{});
-    } else ambient.pause();
+  function applyAudioState(){
+    ambient.volume=state.volume*0.28;
+    if(state.ambienceEnabled) ambient.play().catch(()=>{});
+    else ambient.pause();
   }
-  document.addEventListener("pointerdown", () => ensureAmbient(), {once:true});
+  document.addEventListener("pointerdown",()=>applyAudioState(),{once:true});
 
-  // -------- CURSOR --------
-  const magicCursor=document.getElementById("magicCursor"), trail=document.getElementById("cursorTrail");
-  function applyMotionPref(){
-    const custom = matchMedia("(pointer:fine)").matches && !state.reducedMotion && !matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document.body.classList.toggle("custom-cursor", custom);
-    magicCursor.style.display = custom ? "block" : "none";
-    trail.style.display = custom ? "block" : "none";
+  // ---------------- CURSOR ----------------
+  function applyCursor(){
+    const active = matchMedia("(pointer:fine)").matches && !state.reducedMotion && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.body.classList.toggle("custom-cursor", active);
+    qs("#magicCursor").style.display = active ? "block":"none";
+    qs("#cursorTrail").style.display = active ? "block":"none";
   }
-  window.addEventListener("mousemove", e=>{
+  window.addEventListener("mousemove", e => {
     if(!document.body.classList.contains("custom-cursor")) return;
-    magicCursor.style.left=e.clientX+"px"; magicCursor.style.top=e.clientY+"px";
-    trail.style.left=e.clientX+"px"; trail.style.top=e.clientY+"px";
+    qs("#magicCursor").style.left = e.clientX + "px";
+    qs("#magicCursor").style.top = e.clientY + "px";
+    qs("#cursorTrail").style.left = e.clientX + "px";
+    qs("#cursorTrail").style.top = e.clientY + "px";
   });
-  applyMotionPref();
+  applyCursor();
 
-  // -------- NAVIGATION --------
-  function showScreen(name){
-    speechSynthesis.cancel();
-    Object.entries(screens).forEach(([k,el])=>el.classList.toggle("is-active", k===name));
-    currentScreen=name;
-    document.getElementById("topbar").style.display = name==="finale" ? "none" : "";
-    window.scrollTo({top:0,behavior: state.reducedMotion?"auto":"smooth"});
-    if(name==="spell") startSpell(false);
-    if(name==="potion") startPotion(false);
-    if(name==="portraits") startPortraits(false);
-    if(name==="finale"){ playSfx("finale",.9); }
-    ensureAmbient();
-  }
-
-  document.addEventListener("click", e=>{
-    const home=e.target.closest('[data-action="home"]'); if(home){ playSfx("click",.7); showScreen("home"); return; }
-    const settings=e.target.closest('[data-action="settings"]'); if(settings){ openSettings(); return; }
-    const hhome=e.target.closest('[data-action="how-home"]'); if(hhome){ openHow("home"); return; }
-    const start=e.target.closest("[data-start-game]"); if(start){ playSfx("click",.8); showScreen(start.dataset.startGame); return; }
-    const how=e.target.closest("[data-how]"); if(how){ openHow(how.dataset.how); return; }
-    const restart=e.target.closest("[data-restart]"); if(restart){ confirmRestart(restart.dataset.restart); return; }
-    const scroll=e.target.closest("[data-scroll-games]"); if(scroll){ document.getElementById("gamesShowcase").scrollIntoView({behavior:"smooth",block:"center"}); playSfx("click",.8); }
-  });
-
-  // -------- MODAL --------
-  const modalBackdrop=document.getElementById("modalBackdrop");
-  const modalBody=document.getElementById("modalBody");
-  const modalClose=document.getElementById("modalClose");
+  // ---------------- MODAL ----------------
+  const modalBackdrop = qs("#modalBackdrop");
+  const modalBody = qs("#modalBody");
   function openModal(html){
-    lastFocus=document.activeElement;
-    modalBody.innerHTML=html; modalBackdrop.hidden=false; modalClose.focus(); playSfx("click",.6);
+    modalBody.innerHTML = html;
+    modalBackdrop.hidden = false;
+    qs("#modalClose").focus();
   }
-  function closeModal(){ modalBackdrop.hidden=true; modalBody.innerHTML=""; if(lastFocus) lastFocus.focus(); }
-  modalClose.addEventListener("click",closeModal);
-  modalBackdrop.addEventListener("click",e=>{ if(e.target===modalBackdrop) closeModal(); });
-  document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!modalBackdrop.hidden) closeModal(); });
+  function closeModal(){
+    modalBackdrop.hidden = true;
+    modalBody.innerHTML = "";
+  }
+  qs("#modalClose").addEventListener("click", closeModal);
+  modalBackdrop.addEventListener("click", e => { if(e.target === modalBackdrop) closeModal(); });
+  document.addEventListener("keydown", e => { if(e.key === "Escape" && !modalBackdrop.hidden) closeModal(); });
 
-  function openHow(game){
+  function openInfo(which){
     const copy = {
-      home:`<h2>How the Grove works</h2><p>Each game trains a different English skill. When you finish a game, its magical reward restores one part of the Moon Tree.</p><ul><li><b>Spell Path:</b> build sentences from chunks.</li><li><b>Potion of Words:</b> learn natural collocations and lexical chunks.</li><li><b>Whispering Portraits:</b> listen for meaning and details.</li></ul><p>Your progress is saved on this device.</p>`,
-      spell:`<h2>Spell Path</h2><p>Your English literally rebuilds the road.</p><ul><li>Choose or drag the sentence chunks into the empty slots.</li><li>Build the sentence in natural English word order.</li><li>Press <b>Restore Path</b>.</li><li>If you're stuck, use Hint. After a correct answer, another stone lights up and the path grows.</li></ul>`,
-      potion:`<h2>Potion of Words</h2><p>Natural English is made of chunks that often appear together.</p><ul><li>Choose one card from the first column and one from the second.</li><li>If they make a natural collocation, the cauldron reacts.</li><li>Read the example sentence after every correct pair.</li><li>Master five phrases to unlock the next recipe level.</li></ul>`,
-      portraits:`<h2>Whispering Portraits</h2><p>Listen first — don't read first.</p><ul><li>Press Listen Again to hear the line.</li><li>Answer the question from what you understood.</li><li>Use Transcript Hint only if you need support.</li><li>Every solved story awakens another portrait.</li></ul>`
+      home:`<h2>How the Grove works</h2>
+      <p>This version focuses on richer visuals and clearer educational gameplay.</p>
+      <ul>
+        <li><b>Spell Path</b> — build complete English sentences from chunks.</li>
+        <li><b>Potion of Words</b> — choose the correct halves of natural English chunks and collocations.</li>
+        <li><b>Whispering Portraits</b> — read character whispers and answer elegant clue-based questions.</li>
+      </ul>
+      <p>Every finished game returns a magical relic to the Moon Tree.</p>`,
+      spell:`<h2>Spell Path</h2>
+      <p>Arrange the chunks so they become a natural English sentence.</p>
+      <ul>
+        <li>Click a chunk to place it in the next slot.</li>
+        <li>Click a filled slot to remove that chunk.</li>
+        <li>Press <b>Restore the path</b> to check the sentence.</li>
+        <li>Correct answers light the road and grow the Grove.</li>
+      </ul>`,
+      potion:`<h2>Potion of Words</h2>
+      <p>Each round gives you a clue. Choose the right first half and the right second half to brew the target chunk.</p>
+      <ul>
+        <li>Pick one button on the left and one button on the right.</li>
+        <li>Press <b>Brew potion</b>.</li>
+        <li>Correct answers fill a bottle on the shelf and show an example sentence.</li>
+      </ul>
+      <p>This version removes the broken inactive-second-half problem by rebuilding the mechanic into clear, round-based recipes.</p>`,
+      portraits:`<h2>Whispering Portraits</h2>
+      <p>This version turns the activity into a more elegant reading-and-clue game, without the auto-voice that felt annoying.</p>
+      <ul>
+        <li>Read the whisper on the scroll.</li>
+        <li>Answer the question from what you understood.</li>
+        <li>Correct answers awaken the portrait and light the gallery.</li>
+      </ul>`
     };
-    openModal(copy[game]);
+    openModal(copy[which]);
   }
 
   function openSettings(){
     openModal(`<h2>Settings</h2>
-      <div class="settings-grid">
-        <div class="setting-row"><span>Music</span><button class="btn btn-ghost toggle" id="setMusic">${state.musicEnabled?"On":"Off"}</button></div>
-        <div class="setting-row"><span>Sound effects</span><button class="btn btn-ghost toggle" id="setSfx">${state.sfxEnabled?"On":"Off"}</button></div>
-        <div class="setting-row"><span>Volume</span><input id="setVolume" type="range" min="0" max="1" step=".05" value="${state.masterVolume}"></div>
-        <div class="setting-row"><span>Reduced motion</span><button class="btn btn-ghost toggle" id="setMotion">${state.reducedMotion?"On":"Off"}</button></div>
-        <hr style="border-color:rgba(242,202,115,.16);width:100%">
-        <button class="btn btn-ghost" id="resetAllProgress">Reset game progress</button>
-      </div>`);
-    const b=modalBody;
-    b.querySelector("#setMusic").onclick=()=>{state.musicEnabled=!state.musicEnabled;b.querySelector("#setMusic").textContent=state.musicEnabled?"On":"Off";saveState();ensureAmbient();};
-    b.querySelector("#setSfx").onclick=()=>{state.sfxEnabled=!state.sfxEnabled;b.querySelector("#setSfx").textContent=state.sfxEnabled?"On":"Off";saveState();};
-    b.querySelector("#setVolume").oninput=e=>{state.masterVolume=+e.target.value;saveState();ambient.volume=state.masterVolume*.42;};
-    b.querySelector("#setMotion").onclick=()=>{state.reducedMotion=!state.reducedMotion;b.querySelector("#setMotion").textContent=state.reducedMotion?"On":"Off";saveState();applyMotionPref();};
-    b.querySelector("#resetAllProgress").onclick=()=>{state.spellCompleted=state.potionCompleted=state.portraitsCompleted=false;saveState();closeModal();showScreen("home");};
+      <div class="setting-row"><label>Forest ambience</label><button class="toggle-btn" id="toggleAmbience">${state.ambienceEnabled ? "On":"Off"}</button></div>
+      <div class="setting-row"><label>Sound effects</label><button class="toggle-btn" id="toggleSfx">${state.sfxEnabled ? "On":"Off"}</button></div>
+      <div class="setting-row"><label>Volume</label><input type="range" id="volRange" min="0" max="1" step="0.05" value="${state.volume}"></div>
+      <div class="setting-row"><label>Reduced motion</label><button class="toggle-btn" id="toggleMotion">${state.reducedMotion ? "On":"Off"}</button></div>
+      <div class="setting-row"><label>Progress</label><button class="toggle-btn" id="resetProgressBtn">Reset all</button></div>`);
+    qs("#toggleAmbience").onclick = () => { state.ambienceEnabled=!state.ambienceEnabled; saveState(); applyAudioState(); openSettings(); };
+    qs("#toggleSfx").onclick = () => { state.sfxEnabled=!state.sfxEnabled; saveState(); openSettings(); };
+    qs("#volRange").oninput = (e) => { state.volume = +e.target.value; saveState(); applyAudioState(); };
+    qs("#toggleMotion").onclick = () => { state.reducedMotion=!state.reducedMotion; saveState(); applyCursor(); openSettings(); };
+    qs("#resetProgressBtn").onclick = () => {
+      state.spellCompleted = false; state.potionCompleted = false; state.portraitsCompleted = false;
+      saveState(); closeModal(); show("home");
+      spell.started = false; potion.started = false; portraits.started = false;
+    };
   }
 
-  function confirmRestart(game){
-    openModal(`<h2>Restart ${game==="spell"?"Spell Path":game==="potion"?"Potion of Words":"Whispering Portraits"}?</h2><p>Your completion badge will stay saved, but the current run will start from the beginning.</p><div class="hero-actions"><button class="btn btn-primary" id="doRestart">Restart</button><button class="btn btn-ghost" id="cancelRestart">Cancel</button></div>`);
-    modalBody.querySelector("#cancelRestart").onclick=closeModal;
-    modalBody.querySelector("#doRestart").onclick=()=>{closeModal(); if(game==="spell") startSpell(true); if(game==="potion") startPotion(true); if(game==="portraits") startPortraits(true);};
+  // ---------------- NAV ----------------
+  const screens = {
+    home: qs("#homeScreen"),
+    spell: qs("#spellScreen"),
+    potion: qs("#potionScreen"),
+    portraits: qs("#portraitsScreen"),
+    finale: qs("#finaleScreen")
+  };
+  function show(name){
+    Object.entries(screens).forEach(([k,el]) => el.classList.toggle("is-active", k===name));
+    if(name==="spell") initSpell(false);
+    if(name==="potion") initPotion(false);
+    if(name==="portraits") initPortraits(false);
+    if(name==="finale") playSfx("finale",0.9);
+    window.scrollTo({top:0, behavior: state.reducedMotion ? "auto":"smooth"});
+    applyAudioState();
   }
 
-  // -------- HOME PROGRESS --------
-  function completions(){ return [state.spellCompleted,state.potionCompleted,state.portraitsCompleted].filter(Boolean).length; }
-  function updateHomeProgress(){
-    const n=completions();
-    document.getElementById("moonTreeImg").src=`assets/images/tree${n}.webp`;
-    document.getElementById("treeProgressText").textContent=`${n} / 3 lights restored`;
-    document.getElementById("treeStatusText").textContent=[
-      "The Grove is waiting for you.",
-      "A first light has returned.",
-      "Magic is flowing through the roots.",
+  document.addEventListener("click", e => {
+    const nav = e.target.closest("[data-nav]");
+    if(nav){ playSfx("click",0.6); show(nav.dataset.nav); return; }
+    const start = e.target.closest("[data-start]");
+    if(start){ playSfx("click",0.6); show(start.dataset.start); return; }
+    const info = e.target.closest("[data-info]");
+    if(info){ openInfo(info.dataset.info); return; }
+    const reset = e.target.closest("[data-reset]");
+    if(reset){ 
+      if(reset.dataset.reset==="spell"){ spell.started=false; initSpell(true); }
+      if(reset.dataset.reset==="potion"){ potion.started=false; initPotion(true); }
+      if(reset.dataset.reset==="portraits"){ portraits.started=false; initPortraits(true); }
+      playSfx("click",0.5);
+      return;
+    }
+    const act = e.target.closest("[data-action]");
+    if(act){
+      if(act.dataset.action==="settings") openSettings();
+      if(act.dataset.action==="finale-preview") show("finale");
+      return;
+    }
+    const scroll = e.target.closest("[data-scroll]");
+    if(scroll){ document.getElementById(scroll.dataset.scroll).scrollIntoView({behavior:"smooth", block:"start"}); }
+  });
+
+  qs("#restartAllBtn").onclick = () => {
+    state.spellCompleted = false; state.potionCompleted = false; state.portraitsCompleted = false;
+    saveState();
+    spell.started=false; potion.started=false; portraits.started=false;
+    show("home");
+  };
+
+  // ---------------- HOME ----------------
+  function updateHome(){
+    const n = completions();
+    qs("#homeTreeImage").src = `assets/images/tree${n}.webp`;
+    qs("#homeTreeLabel").textContent = `${n} / 3 relics returned`;
+    qs("#homeTreeStatus").textContent = [
+      "The Grove still sleeps.",
+      "A first light is flowing back.",
+      "The roots are glowing with magic.",
       "The Moon Tree is fully awake."
     ][n];
-    document.querySelector('[data-reward="spell"]').classList.toggle("is-earned",state.spellCompleted);
-    document.querySelector('[data-reward="potion"]').classList.toggle("is-earned",state.potionCompleted);
-    document.querySelector('[data-reward="portraits"]').classList.toggle("is-earned",state.portraitsCompleted);
-    document.querySelector('[data-game-card="spell"]').classList.toggle("is-complete",state.spellCompleted);
-    document.querySelector('[data-game-card="potion"]').classList.toggle("is-complete",state.potionCompleted);
-    document.querySelector('[data-game-card="portraits"]').classList.toggle("is-complete",state.portraitsCompleted);
+    qs("#tokenSpell").classList.toggle("earned", state.spellCompleted);
+    qs("#tokenPotion").classList.toggle("earned", state.potionCompleted);
+    qs("#tokenPortraits").classList.toggle("earned", state.portraitsCompleted);
+    qs('[data-card="spell"]').classList.toggle("done", state.spellCompleted);
+    qs('[data-card="potion"]').classList.toggle("done", state.potionCompleted);
+    qs('[data-card="portraits"]').classList.toggle("done", state.portraitsCompleted);
   }
 
-  function maybeFinale(){
-    if(completions()===3){ setTimeout(()=>showScreen("finale"),500); }
-    else showScreen("home");
+  function maybeFinishGame(which){
+    if(which==="spell") state.spellCompleted = true;
+    if(which==="potion") state.potionCompleted = true;
+    if(which==="portraits") state.portraitsCompleted = true;
+    saveState();
+    const reward = {
+      spell:{img:"assets/images/firefly_ember.png", title:"Firefly Ember restored", text:"Your sentence magic repaired the road and returned the first relic."},
+      potion:{img:"assets/images/moon_drop.png", title:"Moon Drop brewed", text:"Your lexical potions restored the second relic to the Moon Tree."},
+      portraits:{img:"assets/images/whisper_leaf.png", title:"Whisper Leaf awakened", text:"Your clue solving and reading magic restored the final relic."},
+    }[which];
+    playSfx("reward",0.95);
+    openModal(`<h2>${reward.title}</h2><p>${reward.text}</p><p style="text-align:center"><img src="${reward.img}" style="height:180px;margin:0 auto;filter:drop-shadow(0 0 24px rgba(255,205,100,.28))" alt=""></p><div class="hero-buttons"><button class="btn btn-primary" id="returnToGrove">Return to the Grove</button></div>`);
+    qs("#returnToGrove").onclick = () => { closeModal(); if(completions()===3) show("finale"); else show("home"); };
   }
 
-  function rewardModal(game){
-    const cfg = {
-      spell:{title:"Firefly Ember restored",img:"assets/images/firefly_ember.png",text:"Your sentences rebuilt the Spell Path. The first light returns to the Moon Tree."},
-      potion:{title:"Moon Drop created",img:"assets/images/moon_drop.png",text:"You mastered natural English chunks. The second light flows back into the Grove."},
-      portraits:{title:"Whisper Leaf awakened",img:"assets/images/whisper_leaf.png",text:"You listened for meaning and detail. The final light is ready to return."}
-    }[game];
-    playSfx("reward",.9);
-    openModal(`<div class="reward-modal"><img src="${cfg.img}" alt=""><h2>${cfg.title}</h2><p>${cfg.text}</p><button class="btn btn-primary" id="claimReward">Return to the Grove</button></div>`);
-    modalBody.querySelector("#claimReward").onclick=()=>{closeModal();maybeFinale();};
+  // ---------------- SPELL PATH ----------------
+  let spell = {started:false, index:0, placed:[], blooms:0};
+  const allSpellTasks = () => spellStages.flatMap(stage => stage.tasks.map(t => ({...t, stageName:stage.name})));
+  function initSpell(force){
+    if(spell.started && !force) return;
+    spell = {started:true, index:0, placed:[], blooms:0};
+    renderSpell();
   }
+  function renderSpell(){
+    const tasks = allSpellTasks();
+    const t = tasks[spell.index];
+    if(!t){ maybeFinishGame("spell"); return; }
+    spell.placed = Array(t.answer.length).fill(null);
+    qs("#spellStageName").textContent = t.stageName;
+    qs("#spellFocus").textContent = t.focus;
+    qs("#spellBar").style.width = `${spell.index / tasks.length * 100}%`;
+    qs("#spellLabel").textContent = `${spell.index} / ${tasks.length} sentences restored`;
+    qs("#spellRestored").textContent = spell.index;
+    qs("#spellBloomed").textContent = spell.blooms;
+    qs("#spellFeedback").className = "feedback-box";
+    qs("#spellFeedback").textContent = "Put the chunks in a natural English order.";
 
-  // -------- SPELL PATH --------
-  let spell = {};
-  const spellFeedback=document.getElementById("spellFeedback");
-  function allSpellTasks(){ return spellStages.flatMap((s,si)=>s.tasks.map(t=>({...t,stage:s.name,stageIndex:si}))); }
-  function startSpell(force){
-    if(currentScreen!=="spell") return;
-    if(!spell.started || force){
-      spell={started:true,index:0,attempts:0,placed:[]};
-      renderPathNodes();
-      renderSpellTask();
+    // path
+    const ribbon = qs("#pathRibbon");
+    ribbon.innerHTML = "";
+    tasks.forEach((_,i) => {
+      const d = document.createElement("div");
+      d.className = "path-stone";
+      if(i < spell.index) d.classList.add("done");
+      if(i === spell.index) d.classList.add("current");
+      ribbon.appendChild(d);
+    });
+
+    const slots = qs("#spellSlots");
+    slots.innerHTML = "";
+    t.answer.forEach((_,i) => {
+      const b = document.createElement("button");
+      b.className = "answer-slot";
+      b.textContent = String(i + 1);
+      b.onclick = () => {
+        if(spell.placed[i] !== null){
+          spell.placed[i] = null;
+          updateSpellView();
+        }
+      };
+      slots.appendChild(b);
+    });
+
+    const bank = qs("#spellChunkBank");
+    bank.innerHTML = "";
+    shuffle(t.chunks).forEach(chunk => {
+      const b = document.createElement("button");
+      b.className = "chunk-btn";
+      b.textContent = chunk;
+      b.onclick = () => {
+        const empty = spell.placed.indexOf(null);
+        if(empty === -1) return;
+        if(spell.placed.includes(chunk)) return;
+        spell.placed[empty] = chunk;
+        updateSpellView();
+      };
+      bank.appendChild(b);
+    });
+
+    updateSpellView();
+  }
+  function updateSpellView(){
+    const t = allSpellTasks()[spell.index];
+    qsa("#spellSlots .answer-slot").forEach((slot,i) => {
+      const val = spell.placed[i];
+      slot.textContent = val || String(i+1);
+      slot.classList.toggle("filled", !!val);
+    });
+    qsa("#spellChunkBank .chunk-btn").forEach(btn => {
+      btn.classList.toggle("used", spell.placed.includes(btn.textContent));
+    });
+  }
+  qs("#spellHintBtn").onclick = () => {
+    const t = allSpellTasks()[spell.index];
+    qs("#spellFeedback").className = "feedback-box";
+    qs("#spellFeedback").textContent = t.hint;
+    playSfx("click",0.45);
+  };
+  qs("#spellCheckBtn").onclick = () => {
+    const t = allSpellTasks()[spell.index];
+    if(spell.placed.includes(null)){
+      qs("#spellFeedback").className = "feedback-box error";
+      qs("#spellFeedback").textContent = "Complete all slots before restoring the path.";
+      playSfx("no",0.7);
+      return;
     }
-  }
-  function renderPathNodes(){
-    const host=document.getElementById("pathVisual"); host.innerHTML="";
-    for(let i=0;i<10;i++){ const d=document.createElement("div"); d.className="path-node"; if(i<spell.index)d.classList.add("is-lit"); host.appendChild(d); }
-  }
-  function renderSpellTask(){
-    const tasks=allSpellTasks(), t=tasks[spell.index];
-    if(!t){ finishSpell(); return; }
-    spell.placed=[];
-    document.getElementById("spellStageBadge").textContent=t.stage;
-    document.getElementById("spellFocus").textContent=t.focus;
-    const pct=spell.index/tasks.length*100;
-    document.getElementById("spellProgressBar").style.width=pct+"%";
-    document.getElementById("spellProgressLabel").textContent=`${spell.index} / ${tasks.length} path stones restored`;
-    spellFeedback.className="feedback";spellFeedback.textContent="";
-    const slots=document.getElementById("answerSlots"), bank=document.getElementById("chunkBank");
-    slots.innerHTML="";bank.innerHTML="";
-    t.answer.forEach((_,i)=>{
-      const s=document.createElement("button");s.className="answer-slot";s.dataset.slot=i;s.textContent=`${i+1}`;s.onclick=()=>removeFromSlot(i);s.ondragover=e=>e.preventDefault();s.ondrop=e=>{e.preventDefault(); const text=e.dataTransfer.getData("text/plain"); placeChunk(text,i);};slots.appendChild(s);
-    });
-    shuffle([...t.chunks]).forEach((text,i)=>{
-      const b=document.createElement("button");b.className="chunk";b.textContent=text;b.draggable=true;b.dataset.text=text;
-      b.onclick=()=>placeFirstAvailable(text,b);b.ondragstart=e=>e.dataTransfer.setData("text/plain", text);bank.appendChild(b);
-    });
-    updateSpellSlots();
-  }
-  function placeFirstAvailable(text,button){
-    const idx=spell.placed.findIndex(x=>x==null);
-    const slotIndex=idx===-1?spell.placed.length:idx;
-    if(slotIndex>=allSpellTasks()[spell.index].answer.length) return;
-    spell.placed[slotIndex]=text; button.disabled=true; updateSpellSlots();
-  }
-  function placeChunk(textOrIndex,slot){
-    let text=typeof textOrIndex==="string"?textOrIndex:null;
-    if(text==null)return;
-    const existing=spell.placed.indexOf(text); if(existing>=0)spell.placed[existing]=null;
-    spell.placed[slot]=text;
-    [...document.querySelectorAll("#chunkBank .chunk")].forEach(b=>b.disabled=spell.placed.includes(b.textContent));
-    updateSpellSlots();
-  }
-  function removeFromSlot(i){
-    if(spell.placed[i]==null)return;
-    spell.placed[i]=null;
-    [...document.querySelectorAll("#chunkBank .chunk")].forEach(b=>b.disabled=spell.placed.includes(b.textContent));
-    updateSpellSlots();
-  }
-  function updateSpellSlots(){
-    [...document.querySelectorAll(".answer-slot")].forEach((s,i)=>{const val=spell.placed[i];s.textContent=val||`${i+1}`;s.classList.toggle("filled",!!val);});
-  }
-  document.getElementById("checkSpellBtn").onclick=()=>{
-    const t=allSpellTasks()[spell.index];
-    const clean=spell.placed.filter(x=>x!=null);
-    if(clean.length!==t.answer.length){spellFeedback.className="feedback error";spellFeedback.textContent="Complete all the slots first.";playSfx("wrong",.55);return;}
-    const ok=t.answer.every((x,i)=>x===spell.placed[i]);
+    const ok = t.answer.every((x,i) => x === spell.placed[i]);
     if(ok){
-      spellFeedback.className="feedback success";spellFeedback.textContent=`Yes — “${t.answer.join(" ")}”`;
-      playSfx("path",.9); spell.index++;spell.attempts=0;renderPathNodes();
-      document.getElementById("spellProgressBar").style.width=(spell.index/allSpellTasks().length*100)+"%";
-      document.getElementById("spellProgressLabel").textContent=`${spell.index} / ${allSpellTasks().length} path stones restored`;
-      setTimeout(renderSpellTask,1100);
-    }else{
-      spell.attempts++;spellFeedback.className="feedback error";
-      spellFeedback.textContent=spell.attempts>=2?`Not yet. Think about: ${t.hint}`:"The words are right, but the order isn't natural yet. Try again.";
-      playSfx("wrong",.8);document.querySelector(".spell-workbench").classList.add("shake");setTimeout(()=>document.querySelector(".spell-workbench").classList.remove("shake"),420);
+      spell.blooms += 1;
+      qs("#spellFeedback").className = "feedback-box success";
+      qs("#spellFeedback").textContent = `Beautiful. “${t.answer.join(" ")}” sounds natural and lights the path.`;
+      playSfx("path",0.92);
+      spell.index++;
+      setTimeout(renderSpell, 950);
+    } else {
+      qs("#spellFeedback").className = "feedback-box error";
+      qs("#spellFeedback").textContent = "Almost — the words are useful, but the order is not natural yet. Try again.";
+      playSfx("no",0.75);
     }
   };
-  document.getElementById("spellHintBtn").onclick=()=>{
-    const t=allSpellTasks()[spell.index];spellFeedback.className="feedback";spellFeedback.textContent=t.hint;playSfx("click",.5);
-  };
-  function finishSpell(){
-    state.spellCompleted=true;saveState();
-    document.getElementById("spellProgressBar").style.width="100%";
-    document.getElementById("spellProgressLabel").textContent="10 / 10 path stones restored";
-    rewardModal("spell");
-  }
 
-  // -------- POTION --------
-  let potion={};
-  function startPotion(force){
-    if(currentScreen!=="potion")return;
-    if(!potion.started||force){
-      potion={started:true,level:0,mastered:[],left:null,right:null,hints:0};
-      renderPotionLevel();
-    }
+  // ---------------- POTION ----------------
+  let potion = {started:false, index:0, left:null, right:null, solved:[]};
+  function initPotion(force){
+    if(potion.started && !force) return;
+    potion = {started:true, index:0, left:null, right:null, solved:[]};
+    renderPotion();
   }
-  function currentPairs(){return potionLevels[potion.level].pairs;}
-  function renderPotionLevel(){
-    if(potion.level>=potionLevels.length){finishPotion();return;}
-    potion.left=potion.right=null;
-    const level=potionLevels[potion.level];
-    document.getElementById("potionLevelTitle").textContent=level.name;
-    renderPotionBanks();
-    updatePotionHUD();
-    document.getElementById("potionFeedback").className="feedback potion-feedback";
-    document.getElementById("potionFeedback").textContent="Choose one card from each column.";
-    updateMixSlots();
-  }
-  function renderPotionBanks(){
-    const left=document.getElementById("leftWords"),right=document.getElementById("rightWords");left.innerHTML="";right.innerHTML="";
-    shuffle(currentPairs().map(p=>p[0])).forEach(w=>left.appendChild(makeWordChip(w,"left")));
-    shuffle(currentPairs().map(p=>p[1])).forEach(w=>right.appendChild(makeWordChip(w,"right")));
-  }
-  function makeWordChip(w,side){
-    const b=document.createElement("button");b.className="word-chip";b.textContent=w;
-    const matching=currentPairs().find(p=>side==="left"?p[0]===w:p[1]===w);
-    if(matching && potion.mastered.includes(matching[0]+"|"+matching[1])) b.classList.add("is-mastered");
-    b.onclick=()=>selectPotionWord(side,w,b);return b;
-  }
-  function selectPotionWord(side,w,b){
-    if(side==="left")potion.left=w;else potion.right=w;
-    const host=side==="left"?document.getElementById("leftWords"):document.getElementById("rightWords");
-    [...host.children].forEach(x=>x.classList.toggle("is-selected",x===b));updateMixSlots();
-    if(potion.left&&potion.right)setTimeout(checkPotionPair,250);
-  }
-  function updateMixSlots(){
-    const l=document.getElementById("mixLeft"),r=document.getElementById("mixRight");
-    l.textContent=potion.left||"Choose first part";r.textContent=potion.right||"Choose second part";
-    l.classList.toggle("has-word",!!potion.left);r.classList.toggle("has-word",!!potion.right);
-  }
-  function checkPotionPair(){
-    const key=potion.left+" "+potion.right;
-    const pair=currentPairs().find(p=>p[0]===potion.left&&p[1]===potion.right);
-    const fb=document.getElementById("potionFeedback");
-    if(pair){
-      playSfx("bubble",.72);setTimeout(()=>playSfx("correct",.8),180);
-      potion.mastered.push(pair[0]+"|"+pair[1]);
-      fb.className="feedback potion-feedback success";
-      fb.textContent=`${pair[0]} ${pair[1]} — ${phraseExamples[key]||"Great English chunk!"}`;
-      speakText(phraseExamples[key]||key,{rate:.92,pitch:1.02});
-      const done=currentPairs().filter(p=>potion.mastered.includes(p[0]+"|"+p[1])).length;
-      document.getElementById("potionLiquid").className=`potion-liquid power-${Math.min(4,potion.level+1)}`;
-      potion.left=potion.right=null;renderPotionBanks();updateMixSlots();updatePotionHUD();
-      if(done===currentPairs().length){
-        setTimeout(()=>{potion.level++;renderPotionLevel();},1500);
-      }
-    }else{
-      playSfx("wrong",.65);fb.className="feedback potion-feedback error";fb.textContent=`“${potion.left} ${potion.right}” isn't the natural combination here. Try a different partner.`;
-      potion.left=potion.right=null;[...document.querySelectorAll(".word-chip")].forEach(x=>x.classList.remove("is-selected"));updateMixSlots();
-    }
-  }
-  function updatePotionHUD(){
-    const level=potionLevels[potion.level]; if(!level)return;
-    const done=level.pairs.filter(p=>potion.mastered.includes(p[0]+"|"+p[1])).length;
-    const totalDone=potion.mastered.length;
-    document.getElementById("potionProgressLabel").textContent=`${level.name} · ${done} / ${level.pairs.length}`;
-    document.getElementById("potionProgressBar").style.width=((potion.level*5+done)/20*100)+"%";
-    document.getElementById("pairsMastered").textContent=`${totalDone} / 20`;
-  }
-  document.getElementById("potionHintBtn").onclick=()=>{
-    const remaining=currentPairs().filter(p=>!potion.mastered.includes(p[0]+"|"+p[1]));
-    if(!remaining.length)return;
-    const p=remaining[0];document.getElementById("potionFeedback").className="feedback potion-feedback";
-    document.getElementById("potionFeedback").textContent=`Hint: “${p[0]}” naturally goes with “${p[1]}”. Say the whole phrase aloud.`;playSfx("click",.5);
-  };
-  function finishPotion(){state.potionCompleted=true;saveState();document.getElementById("potionProgressBar").style.width="100%";rewardModal("potion");}
+  function renderPotion(){
+    const r = potionRounds[potion.index];
+    if(!r){ maybeFinishGame("potion"); return; }
+    qs("#potionLevelBadge").textContent = r.stage;
+    qs("#potionPrompt").textContent = "Choose the chunk that matches the clue.";
+    qs("#potionClue").textContent = r.clue;
+    qs("#potionLabel").textContent = `${potion.index} / ${potionRounds.length} potions brewed`;
+    qs("#potionBar").style.width = `${potion.index / potionRounds.length * 100}%`;
+    qs("#potionFeedback").className = "feedback-box";
+    qs("#potionFeedback").textContent = "Select one half from each column.";
+    qs("#potionExampleBox").textContent = "After a correct brew, you will see a natural example sentence.";
+    qs("#selectedLeft").textContent = potion.left || "First half";
+    qs("#selectedRight").textContent = potion.right || "Second half";
+    qs("#selectedLeft").classList.toggle("active", !!potion.left);
+    qs("#selectedRight").classList.toggle("active", !!potion.right);
+    qs("#cauldronLiquid").className = `liquid power-${Math.min(4, Math.floor(potion.index / 4) + 1)}`;
 
-  // -------- PORTRAITS --------
-  let portraits={};
-  function startPortraits(force){
-    if(currentScreen!=="portraits")return;
-    if(!portraits.started||force){
-      portraits={started:true,index:0,wrongAttempts:0,awakened:new Set()};
-      renderPortraitGrid();renderPortraitTask();
+    // shelf
+    const shelf = qs("#potionShelf");
+    shelf.innerHTML = "";
+    for(let i=0;i<12;i++){
+      const d=document.createElement("div");
+      d.className="bottle";
+      if(i < potion.index) d.classList.add("filled");
+      shelf.appendChild(d);
     }
-  }
-  function renderPortraitGrid(){
-    const host=document.getElementById("portraitGrid");host.innerHTML="";
-    portraitCharacters.forEach(c=>{
-      const card=document.createElement("article");card.className="portrait-card";card.dataset.id=c.id;
-      card.innerHTML=`<img src="${c.img}" alt="${c.name}, ${c.trait}"><div class="portrait-name">${c.name}</div>`;host.appendChild(card);
+
+    // options
+    const leftHost = qs("#potionLeftOptions");
+    const rightHost = qs("#potionRightOptions");
+    leftHost.innerHTML = ""; rightHost.innerHTML = "";
+    r.left.forEach((word, idx) => {
+      const b=document.createElement("button");
+      b.className="option-btn";
+      if(potion.left===word) b.classList.add("selected");
+      b.textContent = word;
+      b.onclick = () => { potion.left = word; renderPotion(); };
+      leftHost.appendChild(b);
+    });
+    r.right.forEach((word, idx) => {
+      const b=document.createElement("button");
+      b.className="option-btn";
+      if(potion.right===word) b.classList.add("selected");
+      b.textContent = word;
+      b.onclick = () => { potion.right = word; renderPotion(); };
+      rightHost.appendChild(b);
     });
   }
-  function renderPortraitTask(){
-    if(portraits.index>=portraitTasks.length){finishPortraits();return;}
-    speechSynthesis.cancel();
-    const t=portraitTasks[portraits.index];
-    document.getElementById("portraitFocus").textContent=t.focus;
-    document.getElementById("portraitQuestion").textContent=t.question;
-    const trans=document.getElementById("transcriptBox");trans.textContent=t.line;trans.classList.add("is-hidden");
-    document.getElementById("listeningState").textContent="Listen first. The transcript is hidden.";
-    document.getElementById("portraitFeedback").className="feedback";document.getElementById("portraitFeedback").textContent="";
-    document.getElementById("portraitProgressBar").style.width=(portraits.index/portraitTasks.length*100)+"%";
-    document.getElementById("portraitProgressLabel").textContent=`${portraits.index} / ${portraitTasks.length} stories understood`;
-    renderPortraitChoices(t);
-    setTimeout(()=>playPortraitLine(t),500);
+  qs("#potionHintBtn").onclick = () => {
+    const r = potionRounds[potion.index];
+    qs("#potionFeedback").className = "feedback-box";
+    qs("#potionFeedback").textContent = `Hint: say the full chunk aloud. The target begins with “${r.target[0]} ...”.`;
+    playSfx("click",0.45);
+  };
+  qs("#potionBrewBtn").onclick = () => {
+    const r = potionRounds[potion.index];
+    if(!potion.left || !potion.right){
+      qs("#potionFeedback").className = "feedback-box error";
+      qs("#potionFeedback").textContent = "Choose one half from each column first.";
+      playSfx("no",0.7);
+      return;
+    }
+    const ok = potion.left === r.target[0] && potion.right === r.target[1];
+    if(ok){
+      qs("#potionFeedback").className = "feedback-box success";
+      qs("#potionFeedback").textContent = `Excellent. “${r.target[0]} ${r.target[1]}” is the natural chunk.`;
+      qs("#potionExampleBox").textContent = r.example;
+      playSfx("bubble",0.85);
+      setTimeout(()=>playSfx("ok",0.85), 180);
+      potion.index++;
+      potion.left = null; potion.right = null;
+      setTimeout(renderPotion, 1050);
+    } else {
+      qs("#potionFeedback").className = "feedback-box error";
+      qs("#potionFeedback").textContent = `That combination sounds wrong in this clue. Try a different partner.`;
+      playSfx("no",0.75);
+    }
+  };
+
+  // ---------------- PORTRAITS ----------------
+  let portraits = {started:false, index:0, solved:new Set()};
+  function initPortraits(force){
+    if(portraits.started && !force) return;
+    portraits = {started:true, index:0, solved:new Set()};
+    renderPortraits();
   }
-  function renderPortraitChoices(t){
-    const host=document.getElementById("portraitChoices");host.innerHTML="";
-    const speakerQuestion=portraits.index%4===0;
-    const correct=speakerQuestion?portraitCharacters.find(c=>c.id===t.speaker).name:t.answer;
-    if(speakerQuestion) document.getElementById("portraitQuestion").textContent="Who is speaking?";
-    let pool;
-    if(speakerQuestion) pool=portraitCharacters.map(c=>c.name);
-    else pool=portraitTasks.map(x=>x.answer);
-    const choices=[correct,...shuffle(pool.filter(x=>x!==correct)).slice(0,3)];
-    shuffle(choices).forEach(ch=>{
-      const b=document.createElement("button");b.className="answer-choice";b.textContent=ch;
-      b.onclick=()=>checkPortraitAnswer(b,ch,correct,t);host.appendChild(b);
+  function renderPortraitGrid(activeId){
+    const grid=qs("#portraitGrid");
+    grid.innerHTML="";
+    portraitPeople.forEach(p => {
+      const card=document.createElement("div");
+      card.className="portrait-card";
+      if(activeId===p.id) card.classList.add("active");
+      if(portraits.solved.has(p.id)) card.classList.add("solved");
+      card.innerHTML=`<img src="${p.img}" alt="${p.name}"><div class="name">${p.name}</div>`;
+      grid.appendChild(card);
     });
   }
-  function checkPortraitAnswer(btn,choice,correct,t){
-    const buttons=[...document.querySelectorAll(".answer-choice")];buttons.forEach(b=>b.disabled=true);
-    if(choice===correct){
-      btn.classList.add("correct");playSfx("correct",.8);
-      portraits.awakened.add(t.speaker);const card=document.querySelector(`.portrait-card[data-id="${t.speaker}"]`);if(card)card.classList.add("is-awake");
-      document.getElementById("portraitFeedback").className="feedback success";
-      document.getElementById("portraitFeedback").textContent=`Correct. ${portraits.index%4===0?portraitCharacters.find(c=>c.id===t.speaker).name+" was speaking.":t.answer}`;
-      portraits.index++;portraits.wrongAttempts=0;
-      document.getElementById("portraitProgressBar").style.width=(portraits.index/portraitTasks.length*100)+"%";
-      document.getElementById("portraitProgressLabel").textContent=`${portraits.index} / ${portraitTasks.length} stories understood`;
-      setTimeout(renderPortraitTask,1300);
-    }else{
-      btn.classList.add("wrong");playSfx("wrong",.65);portraits.wrongAttempts++;
-      document.getElementById("portraitFeedback").className="feedback error";
-      document.getElementById("portraitFeedback").textContent=portraits.wrongAttempts>=2?"Listen again and use the transcript hint if you need it.":"Not this time. Listen for the key detail and try again.";
-      setTimeout(()=>buttons.forEach(b=>{b.disabled=false;b.classList.remove("wrong")}),750);
+  function renderPortraits(){
+    const r = portraitRounds[portraits.index];
+    if(!r){ maybeFinishGame("portraits"); return; }
+    renderPortraitGrid(r.speaker);
+    qs("#portraitsBar").style.width = `${portraits.index / portraitRounds.length * 100}%`;
+    qs("#portraitsLabel").textContent = `${portraits.index} / ${portraitRounds.length} clues solved`;
+    qs("#portraitsFocus").textContent = r.focus;
+    qs("#portraitQuestion").textContent = r.question;
+    qs("#portraitText").textContent = r.text;
+    qs("#portraitFeedback").className = "feedback-box";
+    qs("#portraitFeedback").textContent = "Read carefully. Then choose the best answer.";
+    const host = qs("#portraitChoices");
+    host.innerHTML = "";
+    r.choices.forEach(choice => {
+      const b=document.createElement("button");
+      b.className="answer-btn";
+      b.textContent = choice;
+      b.onclick = () => checkPortrait(choice, b);
+      host.appendChild(b);
+    });
+  }
+  function checkPortrait(choice, btn){
+    const r = portraitRounds[portraits.index];
+    if(choice === r.answer){
+      btn.classList.add("correct");
+      portraits.solved.add(r.speaker);
+      qs("#portraitFeedback").className = "feedback-box success";
+      qs("#portraitFeedback").textContent = `Correct. ${r.answer}`;
+      playSfx("ok",0.82);
+      portraits.index++;
+      setTimeout(renderPortraits, 980);
+    } else {
+      btn.classList.add("wrong");
+      qs("#portraitFeedback").className = "feedback-box error";
+      qs("#portraitFeedback").textContent = "Not quite. Go back to the whisper and look for the key detail.";
+      playSfx("no",0.72);
+      setTimeout(() => btn.classList.remove("wrong"), 600);
     }
   }
-  function playPortraitLine(t){
-    const c=portraitCharacters.find(x=>x.id===t.speaker);
-    document.querySelectorAll(".portrait-card").forEach(x=>x.classList.remove("is-speaking"));
-    const card=document.querySelector(`.portrait-card[data-id="${t.speaker}"]`);
-    document.getElementById("audioOrb").classList.add("is-playing");
-    document.getElementById("listeningState").textContent="A portrait is speaking...";
-    if(card)card.classList.add("is-speaking");
-    playSfx("speak",.45);
-    speakText(t.line,{rate:c.rate,pitch:c.pitch,onend:()=>{
-      document.getElementById("audioOrb").classList.remove("is-playing");if(card)card.classList.remove("is-speaking");document.getElementById("listeningState").textContent="Choose the best answer.";
-    }});
-  }
-  document.getElementById("listenAgainBtn").onclick=()=>{if(portraits.index<portraitTasks.length)playPortraitLine(portraitTasks[portraits.index]);};
-  document.getElementById("subtitleHintBtn").onclick=()=>{
-    const box=document.getElementById("transcriptBox");box.classList.remove("is-hidden");document.getElementById("listeningState").textContent="Transcript support is now visible.";playSfx("click",.5);
-  };
-  function finishPortraits(){state.portraitsCompleted=true;saveState();document.getElementById("portraitProgressBar").style.width="100%";rewardModal("portraits");}
 
-  function speakText(text,opts={}){
-    if(!("speechSynthesis" in window)) { if(opts.onend)opts.onend(); return; }
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);u.lang="en-GB";u.rate=opts.rate||.94;u.pitch=opts.pitch||1;u.volume=Math.min(1,state.masterVolume*1.4);
-    const voices=speechSynthesis.getVoices();const preferred=voices.find(v=>/en-GB/i.test(v.lang))||voices.find(v=>/^en/i.test(v.lang));if(preferred)u.voice=preferred;
-    if(opts.onend)u.onend=opts.onend;speechSynthesis.speak(u);
-  }
+  // ---------------- INIT ----------------
+  updateHome();
+  applyAudioState();
 
-  // -------- FINALE / RESET --------
-  document.getElementById("playAgainAll").onclick=()=>{
-    state.spellCompleted=state.potionCompleted=state.portraitsCompleted=false;saveState();
-    spell.started=potion.started=portraits.started=false;showScreen("home");
-  };
-
-  // -------- GLOBAL UI --------
-  document.getElementById("musicBtn").onclick=()=>{state.musicEnabled=!state.musicEnabled;saveState();ensureAmbient();updateTopButtons();};
-  document.getElementById("sfxBtn").onclick=()=>{state.sfxEnabled=!state.sfxEnabled;saveState();updateTopButtons();};
-  function updateTopButtons(){
-    document.getElementById("musicBtn").style.opacity=state.musicEnabled?"1":".42";
-    document.getElementById("sfxBtn").style.opacity=state.sfxEnabled?"1":".42";
-  }
-  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-
-  updateHomeProgress();updateTopButtons();ensureAmbient();
 })();
