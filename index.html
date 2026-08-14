@@ -1,1 +1,286 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07152a"><meta name="description" content="Enchanted Grove — three magical English learning games"><title>Enchanted Grove</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="./src/styles/main.css"></head><body><div id="app"></div><div id="cursor" aria-hidden="true"></div><div id="toast" role="status" aria-live="polite"></div><script type="module" src="./src/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07111d">
+  <title>Enchanted Grove — Learn English Through Magic</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="magicCursor" aria-hidden="true"></div>
+  <div id="cursorTrail" aria-hidden="true"></div>
+
+  <audio id="ambientAudio" src="assets/audio/forest_ambient_loop.wav" loop preload="auto"></audio>
+
+  <header class="topbar" id="topbar">
+    <button class="brand" data-action="home" aria-label="Go to home">
+      <span class="brand-mark">✦</span><span>Enchanted Grove</span>
+    </button>
+    <div class="top-actions">
+      <button class="icon-button" id="musicBtn" aria-label="Toggle music" title="Music">♫</button>
+      <button class="icon-button" id="sfxBtn" aria-label="Toggle sound effects" title="Sound effects">◉</button>
+      <button class="icon-button" data-action="settings" aria-label="Open settings" title="Settings">⚙</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- HOME -->
+    <section class="screen screen-home is-active" id="homeScreen" aria-label="Enchanted Grove game library">
+      <div class="home-vignette"></div>
+      <img class="home-fairy" src="assets/images/fairy.webp" alt="The fairy guardian of the Enchanted Grove">
+
+      <div class="home-copy glass">
+        <div class="eyebrow">A magical English adventure</div>
+        <h1>Enchanted<br><span>Grove</span></h1>
+        <p class="hero-tagline">Three magical games. One enchanted adventure.</p>
+        <p class="hero-story">The Moon Tree has lost its light. Use your English to restore three pieces of magic and bring the Grove back to life.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" data-scroll-games>Enter the Grove</button>
+          <button class="btn btn-ghost" data-action="how-home">How it works</button>
+        </div>
+      </div>
+
+      <aside class="tree-panel glass" aria-label="Moon Tree progress">
+        <div class="panel-label">Moon Tree</div>
+        <div class="tree-stage">
+          <img id="moonTreeImg" src="assets/images/tree0.webp" alt="Dormant Moon Tree">
+        </div>
+        <div class="tree-progress-copy">
+          <strong id="treeProgressText">0 / 3 lights restored</strong>
+          <span id="treeStatusText">The Grove is waiting for you.</span>
+        </div>
+        <div class="reward-slots" id="rewardSlots">
+          <div class="reward-slot" data-reward="spell"><span>1</span><small>Ember</small></div>
+          <div class="reward-slot" data-reward="potion"><span>2</span><small>Moon Drop</small></div>
+          <div class="reward-slot" data-reward="portraits"><span>3</span><small>Whisper Leaf</small></div>
+        </div>
+      </aside>
+
+      <section class="games-showcase" id="gamesShowcase">
+        <article class="game-card game-card-spell" data-game-card="spell">
+          <div class="card-image" style="background-image:url('assets/images/spell_path.webp')">
+            <span class="card-number">01</span>
+            <span class="completed-ribbon">RESTORED</span>
+          </div>
+          <div class="card-content">
+            <div class="card-kicker">Sentence Building • Grammar</div>
+            <h2>Spell Path</h2>
+            <p>Rebuild the magical road by arranging English chunks into correct sentences.</p>
+            <div class="card-goals"><span>Word order</span><span>Present tenses</span></div>
+            <div class="card-actions">
+              <button class="btn btn-primary" data-start-game="spell">Play</button>
+              <button class="btn btn-ghost" data-how="spell">How to Play</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="game-card game-card-potion" data-game-card="potion">
+          <div class="card-image" style="background-image:url('assets/images/potion.webp')">
+            <span class="card-number">02</span>
+            <span class="completed-ribbon">BREWED</span>
+          </div>
+          <div class="card-content">
+            <div class="card-kicker">Vocabulary • Collocations</div>
+            <h2>Potion of Words</h2>
+            <p>Combine words that naturally belong together and brew powerful English chunks.</p>
+            <div class="card-goals"><span>Collocations</span><span>Useful phrases</span></div>
+            <div class="card-actions">
+              <button class="btn btn-primary" data-start-game="potion">Play</button>
+              <button class="btn btn-ghost" data-how="potion">How to Play</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="game-card game-card-portraits" data-game-card="portraits">
+          <div class="card-image" style="background-image:url('assets/images/portraits_bg.webp')">
+            <span class="card-number">03</span>
+            <span class="completed-ribbon">AWAKENED</span>
+          </div>
+          <div class="card-content">
+            <div class="card-kicker">Listening • Meaning in Context</div>
+            <h2>Whispering Portraits</h2>
+            <p>Listen to living portraits, understand their stories and solve the questions they leave behind.</p>
+            <div class="card-goals"><span>Listening</span><span>Details & gist</span></div>
+            <div class="card-actions">
+              <button class="btn btn-primary" data-start-game="portraits">Play</button>
+              <button class="btn btn-ghost" data-how="portraits">How to Play</button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <!-- SPELL PATH -->
+    <section class="screen game-screen game-screen-spell" id="spellScreen" aria-label="Spell Path game">
+      <div class="game-bg spell-bg"></div>
+      <div class="game-overlay"></div>
+
+      <div class="game-hud">
+        <button class="hud-btn" data-action="home">← Grove</button>
+        <div class="hud-center">
+          <span class="hud-title">Spell Path</span>
+          <div class="progress-track"><div id="spellProgressBar" class="progress-fill"></div></div>
+          <span id="spellProgressLabel" class="hud-progress-label">0 / 10 path stones restored</span>
+        </div>
+        <div class="hud-actions">
+          <button class="hud-btn" data-how="spell">?</button>
+          <button class="hud-btn" data-restart="spell">↻</button>
+        </div>
+      </div>
+
+      <img class="game-fairy spell-fairy" src="assets/images/fairy.webp" alt="" aria-hidden="true">
+
+      <div class="spell-stage">
+        <div class="stage-badge" id="spellStageBadge">Lantern Steps</div>
+        <div class="instruction-card glass">
+          <span class="focus-pill" id="spellFocus">Present Simple</span>
+          <h2>Restore the sentence</h2>
+          <p>Place the chunks in the correct order. Every correct sentence repairs the path.</p>
+        </div>
+
+        <div class="path-visual" id="pathVisual" aria-hidden="true"></div>
+
+        <div class="spell-workbench glass">
+          <div class="answer-slots" id="answerSlots" aria-label="Sentence answer slots"></div>
+          <div class="chunk-bank" id="chunkBank" aria-label="Available sentence chunks"></div>
+          <div class="workbench-actions">
+            <button class="btn btn-ghost" id="spellHintBtn">Hint</button>
+            <button class="btn btn-primary" id="checkSpellBtn">Restore Path</button>
+          </div>
+          <div class="feedback" id="spellFeedback" role="status"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- POTION -->
+    <section class="screen game-screen game-screen-potion" id="potionScreen" aria-label="Potion of Words game">
+      <div class="game-bg potion-bg"></div>
+      <div class="game-overlay potion-overlay"></div>
+      <div class="game-hud">
+        <button class="hud-btn" data-action="home">← Grove</button>
+        <div class="hud-center">
+          <span class="hud-title">Potion of Words</span>
+          <div class="progress-track"><div id="potionProgressBar" class="progress-fill purple"></div></div>
+          <span id="potionProgressLabel" class="hud-progress-label">Everyday Magic · 0 / 5</span>
+        </div>
+        <div class="hud-actions">
+          <button class="hud-btn" data-how="potion">?</button>
+          <button class="hud-btn" data-restart="potion">↻</button>
+        </div>
+      </div>
+
+      <img class="game-fairy potion-fairy" src="assets/images/fairy.webp" alt="" aria-hidden="true">
+
+      <div class="potion-layout">
+        <section class="potion-lesson glass">
+          <span class="focus-pill purple">Lexical magic</span>
+          <h2 id="potionLevelTitle">Everyday Magic</h2>
+          <p>Choose two parts that make a natural English phrase. The right combination changes the potion.</p>
+          <div class="lexical-tip" id="lexicalTip">English words often travel together. Learn the whole chunk, not only one word.</div>
+          <button class="btn btn-ghost" id="potionHintBtn">Reveal a hint</button>
+        </section>
+
+        <section class="cauldron-zone">
+          <div class="cauldron">
+            <div class="cauldron-rim"></div>
+            <div class="potion-liquid" id="potionLiquid"><span class="bubble b1"></span><span class="bubble b2"></span><span class="bubble b3"></span></div>
+            <div class="cauldron-body"><span class="cauldron-symbol">✧</span></div>
+          </div>
+          <div class="mix-slots">
+            <button class="mix-slot" id="mixLeft" aria-label="First word part">Choose first part</button>
+            <span class="mix-plus">+</span>
+            <button class="mix-slot" id="mixRight" aria-label="Second word part">Choose second part</button>
+          </div>
+          <div class="feedback potion-feedback" id="potionFeedback" role="status"></div>
+        </section>
+
+        <section class="phrase-bank glass">
+          <h3>Word ingredients</h3>
+          <div class="pair-columns">
+            <div><small>First part</small><div id="leftWords" class="word-column"></div></div>
+            <div><small>Second part</small><div id="rightWords" class="word-column"></div></div>
+          </div>
+          <div class="completed-pairs">
+            <span>Recipes mastered</span>
+            <strong id="pairsMastered">0 / 20</strong>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- PORTRAITS -->
+    <section class="screen game-screen game-screen-portraits" id="portraitsScreen" aria-label="Whispering Portraits game">
+      <div class="game-bg portraits-bg"></div>
+      <div class="game-overlay portrait-overlay"></div>
+      <div class="game-hud">
+        <button class="hud-btn" data-action="home">← Grove</button>
+        <div class="hud-center">
+          <span class="hud-title">Whispering Portraits</span>
+          <div class="progress-track"><div id="portraitProgressBar" class="progress-fill green"></div></div>
+          <span id="portraitProgressLabel" class="hud-progress-label">0 / 12 stories understood</span>
+        </div>
+        <div class="hud-actions">
+          <button class="hud-btn" data-how="portraits">?</button>
+          <button class="hud-btn" data-restart="portraits">↻</button>
+        </div>
+      </div>
+
+      <img class="portrait-guide" src="assets/images/fairy_face.webp" alt="Fairy guide">
+
+      <div class="portrait-layout">
+        <div class="portrait-grid" id="portraitGrid"></div>
+
+        <section class="listening-panel glass">
+          <div class="listening-topline">
+            <span class="focus-pill green" id="portraitFocus">Listening for detail</span>
+            <span class="listening-state" id="listeningState">Listen first. The transcript is hidden.</span>
+          </div>
+          <div class="audio-orb" id="audioOrb" aria-hidden="true"><span></span><span></span><span></span></div>
+          <h2 id="portraitQuestion">Listen to the portrait...</h2>
+          <p id="transcriptBox" class="transcript is-hidden"></p>
+
+          <div class="listening-actions">
+            <button class="btn btn-primary" id="listenAgainBtn">Listen Again</button>
+            <button class="btn btn-ghost" id="subtitleHintBtn">Transcript Hint</button>
+          </div>
+
+          <div id="portraitChoices" class="answer-choices"></div>
+          <div class="feedback" id="portraitFeedback" role="status"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- FINALE -->
+    <section class="screen finale-screen" id="finaleScreen" aria-label="Final celebration">
+      <div class="finale-bg"></div>
+      <div class="finale-light"></div>
+      <img class="finale-fairy" src="assets/images/fairy.webp" alt="Fairy guardian beside the awakened Moon Tree">
+      <div class="finale-copy glass">
+        <div class="eyebrow">All three lights restored</div>
+        <h1>The Grove<br><span>is Awake</span></h1>
+        <p>You used English to restore the path, brew the language magic and awaken the living portraits.</p>
+        <div class="final-rewards">
+          <img src="assets/images/firefly_ember.png" alt="Firefly Ember">
+          <img src="assets/images/moon_drop.png" alt="Moon Drop">
+          <img src="assets/images/whisper_leaf.png" alt="Whisper Leaf">
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="playAgainAll">Play Again</button>
+          <button class="btn btn-ghost" data-action="home">Back to the Grove</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL -->
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal glass" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
