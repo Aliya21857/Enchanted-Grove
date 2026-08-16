@@ -1,48 +1,468 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Fairy Run — Enchanted Grove</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07111d">
+<title>Fairy Run V2 — Challenge Edition</title>
 <style>
-:root{--gold:#f7d98f;--cream:#fff5d8;--muted:#dfd3c0}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#040912;color:var(--cream);font-family:Georgia,serif}button{font:inherit;cursor:pointer}
-#app{position:relative;width:100%;height:100%;overflow:hidden}#bg{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,6,10,.05),rgba(2,6,10,.28)),url('assets/forest.webp') center/cover no-repeat;filter:saturate(1.16) brightness(1.03);transform:scale(1.035)}#veil{position:absolute;inset:0;background:radial-gradient(circle at 70% 18%,rgba(255,224,132,.13),transparent 30%),linear-gradient(90deg,rgba(4,12,17,.18),transparent 45%,rgba(8,5,12,.23));pointer-events:none}canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.top{position:absolute;z-index:20;left:18px;right:18px;top:15px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}.pill{border:1px solid rgba(247,217,143,.4);background:rgba(5,11,18,.76);color:#ffe3a3;border-radius:999px;padding:12px 16px;box-shadow:0 10px 30px rgba(0,0,0,.3);backdrop-filter:blur(10px)}.brand{font-weight:700}.prog{justify-self:center;width:min(700px,63vw);display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:center}.prog strong{color:#ffe09c}.bar{height:10px;background:rgba(0,0,0,.38);border-radius:999px;overflow:hidden;border:1px solid rgba(247,217,143,.16)}.bar div{height:100%;width:0;background:linear-gradient(90deg,#db843d,#ffe19a);transition:width .35s}.prog small{font:11px system-ui,sans-serif;color:#ddd2c1;white-space:nowrap}.tools{display:flex;gap:7px}.tool{width:45px;height:45px;border-radius:50%;border:1px solid rgba(247,217,143,.37);background:rgba(5,11,18,.8);color:#ffe0a0;font:700 11px system-ui,sans-serif}
-.quest{position:absolute;z-index:20;left:22px;top:95px;width:330px;padding:19px;border-radius:24px;background:linear-gradient(145deg,rgba(6,13,21,.88),rgba(31,14,20,.8));border:1px solid rgba(247,217,143,.42);box-shadow:0 24px 70px rgba(0,0,0,.4);backdrop-filter:blur(12px)}.eyebrow{font:700 10px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.19em;color:#efc979}.quest h1{margin:9px 0 4px;color:#ffe0a2;font-size:32px}.quest p{margin:0;font:13px/1.52 system-ui,sans-serif;color:#ded2c1}.sentence{margin-top:13px;padding:11px;border-radius:15px;background:rgba(0,0,0,.22);border:1px dashed rgba(247,217,143,.23);display:flex;gap:6px;flex-wrap:wrap;min-height:52px}.sentence span{padding:7px 9px;border-radius:9px;background:rgba(62,88,50,.62);font:700 10px system-ui,sans-serif;color:#edffe6}.stats{display:flex;gap:7px;margin-top:11px}.stat{flex:1;padding:9px;border-radius:13px;background:rgba(0,0,0,.18);border:1px solid rgba(247,217,143,.12);text-align:center}.stat strong{display:block;font-size:22px;color:#ffe1a1}.stat small{font:8px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.07em;color:#cabdaa}
-.tip{position:absolute;z-index:20;right:22px;top:95px;width:230px;padding:15px;border-radius:19px;background:rgba(5,11,18,.75);border:1px solid rgba(247,217,143,.28);backdrop-filter:blur(10px);font:12px/1.52 system-ui,sans-serif;color:#d9cebd}.tip b{color:#ffe09c}.feedback{position:absolute;z-index:20;left:50%;bottom:24px;transform:translateX(-50%);min-width:360px;max-width:720px;padding:12px 18px;border-radius:999px;background:rgba(5,11,18,.8);border:1px solid rgba(247,217,143,.27);backdrop-filter:blur(9px);text-align:center;font:700 12px system-ui,sans-serif;color:#eee1cb}.feedback.good{background:rgba(20,70,37,.76);color:#e4ffd8;border-color:rgba(170,239,153,.4)}.feedback.bad{background:rgba(91,28,24,.78);color:#ffd3c5;border-color:rgba(255,156,133,.36)}
-.mobile{position:absolute;z-index:25;right:16px;bottom:16px;display:none}.mobile button{width:54px;height:48px;margin:2px;border-radius:13px;border:1px solid rgba(247,217,143,.32);background:rgba(5,11,18,.8);color:#ffe09c;font-size:20px}
-.overlay{position:absolute;inset:0;z-index:50;display:grid;place-items:center;background:rgba(3,6,10,.56);backdrop-filter:blur(7px)}.card{width:min(750px,90vw);padding:34px;border-radius:30px;text-align:center;background:linear-gradient(145deg,rgba(7,14,22,.95),rgba(38,15,19,.92));border:1px solid rgba(247,217,143,.5);box-shadow:0 30px 100px rgba(0,0,0,.55)}.card h2{margin:9px 0;color:#ffe0a0;font-size:48px}.card p,.card li{font:14px/1.65 system-ui,sans-serif;color:#dfd3c1}.card ul{display:inline-block;text-align:left}.start{margin-top:18px;padding:14px 25px;border-radius:999px;border:1px solid #e7aa58;color:#fff4d9;background:linear-gradient(180deg,#c6503c,#771f1e);font:800 12px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.1em}.hidden{display:none!important}.faceReward{height:145px;border-radius:50%;margin:10px auto;border:2px solid rgba(247,217,143,.6);box-shadow:0 0 30px rgba(255,213,99,.2)}
-@media(max-width:900px){.quest{left:10px;top:88px;width:300px}.tip{display:none}.prog{width:auto}.prog small{display:none}.mobile{display:block}.feedback{bottom:78px;width:calc(100% - 30px);min-width:0}}@media(max-width:620px){.brand{display:none}.top{left:7px;right:7px}.prog{grid-column:1/3;width:100%}.quest{left:8px;right:8px;width:auto;padding:13px}.quest h1{font-size:24px}.quest p{font-size:11px}.stats{display:none}.sentence{min-height:42px}.sentence span{font-size:9px;padding:5px 7px}.feedback{font-size:10px}}
+:root{
+  --gold:#f6d78d; --gold2:#ffe9b4; --ink:#fff7df; --muted:#ded3c2;
+  --red:#a84237; --deep:#07111b; --green:#6eaf76; --violet:#9a6be6;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03070c;color:var(--ink);font-family:Georgia,serif}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid #ffe7a6;outline-offset:3px}
+#app{position:relative;width:100%;height:100%;overflow:hidden}
+#bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 70% 20%,rgba(255,221,126,.14),transparent 28%),
+    linear-gradient(180deg,rgba(2,5,9,.02),rgba(2,5,9,.22)),
+    url('assets/forest.webp') center/cover no-repeat;
+  filter:saturate(1.13) contrast(1.02);
+  transform:scale(1.035)
+}
+#atmos{position:absolute;inset:0;pointer-events:none;background:
+  linear-gradient(90deg,rgba(4,12,18,.12),transparent 45%,rgba(12,6,15,.18)),
+  radial-gradient(circle at 18% 84%,rgba(67,159,165,.12),transparent 28%)}
+#canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+.topbar{
+  position:absolute;z-index:30;left:15px;right:15px;top:14px;height:62px;
+  display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;pointer-events:none
+}
+.topbar>*{pointer-events:auto}
+.brand,.tool{
+  border:1px solid rgba(246,215,141,.42);background:rgba(5,11,18,.82);color:#ffe2a2;
+  border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,.3);backdrop-filter:blur(10px)
+}
+.brand{padding:12px 16px;font-weight:700;font-size:18px}
+.progress{
+  justify-self:center;width:min(720px,61vw);padding:10px 15px;border-radius:999px;
+  background:rgba(5,11,18,.8);border:1px solid rgba(246,215,141,.28);backdrop-filter:blur(10px);
+  display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+}
+.progress strong{color:#ffe0a0}
+.progress small{font:11px system-ui,sans-serif;color:#ded2c0;white-space:nowrap}
+.track{height:10px;border-radius:999px;background:rgba(0,0,0,.36);overflow:hidden;border:1px solid rgba(246,215,141,.18)}
+.track div{height:100%;width:0;background:linear-gradient(90deg,#dd873e,#ffe09a);transition:width .35s}
+.tools{display:flex;gap:7px}
+.tool{padding:11px 14px;font:800 10px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.08em;transition:.2s}
+.tool:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.tool.off{opacity:.48}
+.tool.danger{color:#ffd3c6;border-color:rgba(255,141,119,.35)}
+.tool.help{width:42px;padding:0;font-size:15px}
+
+.quest{
+  position:absolute;z-index:25;left:20px;top:94px;width:365px;padding:19px;border-radius:23px;
+  background:linear-gradient(145deg,rgba(7,14,22,.88),rgba(31,14,19,.82));
+  border:1px solid rgba(246,215,141,.4);box-shadow:0 24px 65px rgba(0,0,0,.42);backdrop-filter:blur(12px)
+}
+.kicker{font:800 9px system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#eec878}
+.quest h1{margin:8px 0 4px;color:#ffe0a0;font-size:31px}
+.quest .mission{font:13px/1.5 system-ui,sans-serif;color:#ded3c1;margin:0}
+.sentence{
+  margin-top:13px;padding:12px;border-radius:15px;background:rgba(0,0,0,.22);
+  border:1px dashed rgba(246,215,141,.22);display:flex;gap:6px;flex-wrap:wrap;min-height:61px
+}
+.sentence span{padding:7px 9px;border-radius:9px;background:rgba(66,87,53,.58);color:#efffe8;font:700 11px system-ui,sans-serif}
+.sentence span.blank{background:rgba(91,55,37,.44);color:#e0c9a7}
+.mission-meta{display:flex;gap:8px;margin-top:11px}
+.meta{flex:1;padding:9px 7px;border-radius:13px;background:rgba(0,0,0,.17);border:1px solid rgba(246,215,141,.13);text-align:center}
+.meta strong{display:block;color:#ffe1a0;font-size:23px}.meta small{font:8px system-ui,sans-serif;color:#cfc3b0;text-transform:uppercase;letter-spacing:.09em}
+.feedback{
+  position:absolute;z-index:28;left:50%;bottom:22px;transform:translateX(-50%);
+  width:min(720px,72vw);padding:12px 18px;border-radius:999px;text-align:center;
+  background:rgba(5,11,18,.82);border:1px solid rgba(246,215,141,.25);backdrop-filter:blur(9px);
+  font:700 12px system-ui,sans-serif;color:#efe2ce;box-shadow:0 10px 28px rgba(0,0,0,.28)
+}
+.feedback.good{color:#e4ffda;border-color:rgba(159,237,148,.4);background:rgba(22,72,39,.76)}
+.feedback.bad{color:#ffd4c8;border-color:rgba(255,152,129,.37);background:rgba(92,30,25,.78)}
+.portal-alert{
+  position:absolute;z-index:29;right:22px;bottom:92px;width:260px;padding:14px 15px;border-radius:19px;
+  background:linear-gradient(145deg,rgba(44,26,69,.91),rgba(11,10,20,.92));
+  border:1px solid rgba(220,190,255,.58);box-shadow:0 0 32px rgba(167,105,232,.3),0 15px 35px rgba(0,0,0,.3);
+  font:700 12px/1.45 system-ui,sans-serif;color:#f0ddff;opacity:0;transform:translateY(15px);transition:.3s;pointer-events:none
+}
+.portal-alert.show{opacity:1;transform:translateY(0)}
+.portal-alert strong{display:block;color:#ffe4a9;font-size:16px;margin-bottom:3px}
+.arrow{font-size:30px;display:inline-block;margin-right:8px;vertical-align:middle;color:#e3c2ff}
+
+.mobile{
+  position:absolute;z-index:32;right:15px;bottom:16px;display:none;gap:5px;align-items:flex-end
+}
+.mobile button{
+  width:56px;height:49px;border-radius:14px;border:1px solid rgba(246,215,141,.3);
+  background:rgba(5,11,18,.82);color:#ffe2a1;font-size:21px
+}
+
+.overlay{
+  position:absolute;inset:0;z-index:60;display:grid;place-items:center;
+  background:rgba(2,5,9,.58);backdrop-filter:blur(7px)
+}
+.overlay.hidden{display:none}
+.card{
+  width:min(760px,91vw);padding:32px;border-radius:29px;text-align:center;
+  background:linear-gradient(145deg,rgba(7,14,22,.96),rgba(40,15,20,.93));
+  border:1px solid rgba(246,215,141,.52);box-shadow:0 30px 100px rgba(0,0,0,.58)
+}
+.card h2{margin:10px 0;color:#ffe0a0;font-size:46px}
+.card p,.card li{font:14px/1.65 system-ui,sans-serif;color:#e0d5c3}
+.card ul{display:inline-block;text-align:left}
+.start{
+  margin-top:18px;padding:14px 26px;border-radius:999px;border:1px solid #e6a85a;
+  color:#fff4d9;background:linear-gradient(180deg,#c9503d,#741d1d);
+  font:800 12px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.1em
+}
+.recap{
+  margin:16px auto 0;max-width:620px;text-align:left;padding:15px 17px;border-radius:17px;
+  background:rgba(0,0,0,.2);border:1px dashed rgba(246,215,141,.2);font:13px/1.6 system-ui,sans-serif;color:#e4d8c5
+}
+.recap b{color:#ffe19f}
+
+@media(max-width:920px){
+  .quest{left:12px;top:90px;width:330px}.progress{width:auto}.progress small{display:none}.mobile{display:flex}.feedback{bottom:78px;width:calc(100% - 24px)}
+  .portal-alert{right:12px;bottom:140px}
+}
+@media(max-width:620px){
+  .brand{display:none}.topbar{grid-template-columns:1fr auto}.progress{justify-self:stretch;width:100%}
+  .quest{left:9px;right:9px;top:88px;width:auto;padding:13px}.quest h1{font-size:24px}.quest .mission{font-size:11px}
+  .mission-meta{display:none}.sentence{min-height:45px}.sentence span{font-size:9px;padding:5px 7px}
+  .tool{padding:10px 11px}.portal-alert{width:210px;font-size:10px}
+}
 </style>
 </head>
-<body><div id="app"><div id="bg"></div><div id="veil"></div><canvas id="game"></canvas>
-<div class="top"><div class="pill brand">✦ Enchanted Grove</div><div class="pill prog"><strong>Fairy Run</strong><div class="bar"><div id="progress"></div></div><small id="stage">Stage 1 / 5</small></div><div class="tools"><button class="tool" id="sfx">SFX</button><button class="tool" id="restart">↻</button></div></div>
-<aside class="quest"><div class="eyebrow">Current magic mission</div><h1 id="focus">Present Simple</h1><p>Run, jump and collect the two correct English runes. Wrong runes cost a heart.</p><div class="sentence" id="sentence"></div><div class="stats"><div class="stat"><strong id="runes">0</strong><small>runes</small></div><div class="stat"><strong id="hearts">3</strong><small>hearts</small></div><div class="stat"><strong id="magic">0</strong><small>magic</small></div></div></aside>
-<aside class="tip"><b>Move</b>: A/D or ←/→<br><b>Jump</b>: W / ↑ / Space<br><br>Collect the glowing correct rune first. After two correct chunks, the purple gate opens.</aside>
-<div class="feedback" id="feedback">Use the controls to move through the enchanted forest.</div>
-<div class="mobile"><div style="text-align:center"><button data-key="jump">▲</button><br><button data-key="left">◀</button><button data-key="right">▶</button></div></div>
-<div class="overlay" id="intro"><div class="card"><div class="eyebrow">Gameplay test — one game only</div><h2>Fairy Run</h2><p>We are testing the game itself before building the rest of the website.</p><ul><li>Five short platforming stages.</li><li>English chunks are physical collectibles inside the level.</li><li>Correct chunks rebuild the sentence and open the portal.</li><li>Wrong chunks cost a heart, but the stage is quick to retry.</li></ul><br><button class="start" id="start">Start Adventure</button></div></div>
-<div class="overlay hidden" id="complete"><div class="card"><div class="eyebrow">Adventure complete</div><h2>Firefly Ember Restored</h2><img class="faceReward" src="assets/fairy_face.webp" alt="Fairy"><p>You completed all five stages by using English to unlock the path.</p><button class="start" id="again">Play Again</button></div></div>
+<body>
+<div id="app">
+  <div id="bg"></div><div id="atmos"></div><canvas id="canvas"></canvas>
+
+  <div class="topbar">
+    <div class="brand">✦ Enchanted Grove</div>
+    <div class="progress">
+      <strong>Fairy Run</strong>
+      <div class="track"><div id="progressFill"></div></div>
+      <small id="progressText">Mission 1 / 12</small>
+    </div>
+    <div class="tools">
+      <button class="tool help" id="helpBtn" title="How to play">?</button>
+      <button class="tool" id="soundBtn">Sound On</button>
+      <button class="tool danger" id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <aside class="quest">
+    <div class="kicker">Current English challenge</div>
+    <h1 id="focusTitle">Present Simple</h1>
+    <p class="mission" id="missionText">Collect the missing chunks in the correct order.</p>
+    <div class="sentence" id="sentenceBox"></div>
+    <div class="mission-meta">
+      <div class="meta"><strong id="runeCount">0</strong><small>correct chunks</small></div>
+      <div class="meta"><strong id="heartCount">4</strong><small>hearts</small></div>
+      <div class="meta"><strong id="scoreCount">0</strong><small>magic</small></div>
+    </div>
+  </aside>
+
+  <div class="portal-alert" id="portalAlert"><span class="arrow">➜</span><strong>Portal opened!</strong>It appeared nearby. Follow the purple light.</div>
+  <div class="feedback" id="feedback">Move with A/D or ←/→. Jump with W, ↑ or Space.</div>
+
+  <div class="mobile">
+    <button data-key="left">◀</button>
+    <button data-key="jump">▲</button>
+    <button data-key="right">▶</button>
+  </div>
+
+  <div class="overlay" id="intro">
+    <div class="card">
+      <div class="kicker">Challenge Edition</div>
+      <h2>Fairy Run V2</h2>
+      <p>This version is deliberately harder and longer. There are <b>12 English missions</b>, not one easy sentence per stage.</p>
+      <ul>
+        <li>Each mission has 3 missing chunks, plus several distractors.</li>
+        <li>Several distractor runes are placed on the route.</li>
+        <li>Wrong choices cost a heart.</li>
+        <li>The portal now appears <b>close to the fairy</b> as soon as the sentence is complete.</li>
+        <li>The fairy is much larger and easier to see.</li>
+      </ul><br>
+      <button class="start" id="startBtn">Start Challenge</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="missionComplete">
+    <div class="card">
+      <div class="kicker">Mission complete</div>
+      <h2 id="missionCompleteTitle">Sentence restored</h2>
+      <div class="recap" id="missionRecap"></div>
+      <button class="start" id="continueBtn">Continue</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="gameComplete">
+    <div class="card">
+      <div class="kicker">All 12 missions complete</div>
+      <h2>Firefly Ember Restored</h2>
+      <p>You finished a full run of the forest using English grammar and chunks to open every gate.</p>
+      <div class="recap" id="finalRecap"></div>
+      <button class="start" id="againBtn">Play Again</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="helpOverlay">
+    <div class="card">
+      <div class="kicker">Controls</div>
+      <h2>How to Play</h2>
+      <ul>
+        <li><b>A / D</b> or <b>← / →</b> — move</li>
+        <li><b>W / ↑ / Space</b> — jump</li>
+        <li>Collect the English runes <b>in the correct order</b>.</li>
+        <li>The next correct rune glows more brightly.</li>
+        <li>Wrong runes cost one heart.</li>
+        <li>When all blanks are complete, a large purple portal spawns nearby.</li>
+      </ul><br>
+      <button class="start" id="closeHelpBtn">Back to Game</button>
+    </div>
+  </div>
 </div>
+
 <script>
-(()=>{'use strict';const C=document.getElementById('game'),X=C.getContext('2d'),fairy=new Image();fairy.src='assets/fairy.webp';let W=innerWidth,H=innerHeight,D=Math.min(devicePixelRatio||1,2),last=0,running=false,level=0,score=0,sfx=true,camera=0,stageW=2200,player,platforms,runes,portal,particles=[];const keys={left:false,right:false,jump:false};
-const L=[
-{focus:'Present Simple',tpl:['My brother','___','to school','___'],ans:['goes','every day.'],bad:['go','now.'],note:'Third person singular needs goes; every day describes a routine.'},
-{focus:'Frequency adverbs',tpl:['We','___','play football','___'],ans:['usually','after school.'],bad:['now','yesterday'],note:'Usually fits a repeated routine; after school is the time phrase.'},
-{focus:'Present Continuous',tpl:['She','___','a book','___'],ans:['is reading','now.'],bad:['reads','every day.'],note:'Now signals Present Continuous: is reading.'},
-{focus:'Questions',tpl:['___','they','___','football?'],ans:['Do','play'],bad:['Are','playing'],note:'Present Simple question: Do + subject + base verb.'},
-{focus:'Negative Present',tpl:['We','___','rainy weather','___'],ans:["don't like",'today.'],bad:["aren't liking",'usually'],note:'Like is normally used in Present Simple: don\'t like.'}
-];const snd={ok:'assets/correct.wav',bad:'assets/wrong.wav',portal:'assets/portal.wav',click:'assets/click.wav',reward:'assets/reward.wav'};function sound(k,g=.7){if(!sfx)return;let a=new Audio(snd[k]);a.volume=g;a.play().catch(()=>{})}
-function resize(){W=innerWidth;H=innerHeight;D=Math.min(devicePixelRatio||1,2);C.width=W*D;C.height=H*D;C.style.width=W+'px';C.style.height=H+'px';X.setTransform(D,0,0,D,0,0)}addEventListener('resize',resize);resize();const gy=()=>H*.79;
-function init(){stageW=Math.max(W*2.15,2100);camera=0;player={x:120,y:gy()-92,w:56,h:90,vx:0,vy:0,on:false,hearts:3,col:[],inv:0,dir:1};particles=[];platforms=[{x:0,y:gy(),w:stageW,h:140},{x:400,y:gy()-125,w:190,h:22},{x:735,y:gy()-205,w:185,h:22},{x:1080,y:gy()-112,w:220,h:22},{x:1450,y:gy()-215,w:200,h:22},{x:1760,y:gy()-128,w:180,h:22}];let spots=[{x:450,y:gy()-173},{x:800,y:gy()-253},{x:1150,y:gy()-160},{x:1520,y:gy()-263}],lev=L[level],labels=[lev.ans[0],lev.bad[0],lev.ans[1],lev.bad[1]];if(level%2)[labels[0],labels[1]]=[labels[1],labels[0]];if(level%3)[labels[2],labels[3]]=[labels[3],labels[2]];runes=spots.map((s,i)=>({...s,w:126,h:48,text:labels[i],taken:false,glow:false}));portal={x:stageW-260,y:gy()-145,w:88,h:145,open:false};updateUI();setFeedback('Find the two glowing correct runes and reach the portal.','')}
-function updateUI(){let lev=L[level],box=document.getElementById('sentence'),used=[...player.col];box.innerHTML='';lev.tpl.forEach(p=>{let s=document.createElement('span');if(p==='___'){s.textContent=used.length?used.shift():'?';if(s.textContent==='?')s.style.background='rgba(111,67,43,.45)'}else s.textContent=p;box.appendChild(s)});document.getElementById('focus').textContent=lev.focus;document.getElementById('runes').textContent=player.col.length;document.getElementById('hearts').textContent=player.hearts;document.getElementById('magic').textContent=score;document.getElementById('stage').textContent=`Stage ${level+1} / ${L.length}`;document.getElementById('progress').style.width=`${level/L.length*100}%`;portal.open=player.col.length===2;runes.forEach(r=>{if(!r.taken)r.glow=r.text===lev.ans[player.col.length]})}
-function setFeedback(t,c){let f=document.getElementById('feedback');f.textContent=t;f.className='feedback'+(c?' '+c:'')}
-function ov(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}function burst(x,y,c,n=18){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*170,vy:(Math.random()-.75)*180,life:.8+Math.random()*.35,size:2+Math.random()*4,c})}
-function hurt(msg){if(player.inv>0)return;player.hearts--;player.inv=1.1;score=Math.max(0,score-5);sound('bad',.65);burst(player.x+28,player.y+45,'#ff8c76');setFeedback(msg,'bad');updateUI();if(player.hearts<=0)setTimeout(()=>init(),650)}
-function collect(r){let lev=L[level],exp=lev.ans[player.col.length];if(r.text===exp){r.taken=true;player.col.push(r.text);score+=25;sound('ok',.65);burst(r.x+r.w/2,r.y+r.h/2,'#ffe28a',22);setFeedback(`Correct: “${r.text}”. ${player.col.length===2?'The portal is open!':'Find the next glowing rune.'}`,'good');updateUI()}else hurt(`“${r.text}” does not fit here. ${lev.note}`)}
-function advance(){sound('portal',.8);score+=50;level++;if(level>=L.length){running=false;document.getElementById('complete').classList.remove('hidden');document.getElementById('progress').style.width='100%';sound('reward',.9)}else setTimeout(init,350)}
-function update(dt){if(!running)return;if(player.inv>0)player.inv-=dt;let ax=(keys.right?1:0)-(keys.left?1:0);player.vx+=ax*980*dt;player.vx*=Math.pow(.001,dt);player.vx=Math.max(-285,Math.min(285,player.vx));if(ax)player.dir=ax;if(keys.jump&&player.on){player.vy=-510;player.on=false;sound('click',.12)}keys.jump=false;player.vy+=1180*dt;let py=player.y;player.x+=player.vx*dt;player.x=Math.max(0,Math.min(stageW-player.w,player.x));player.y+=player.vy*dt;player.on=false;for(let p of platforms){let oldB=py+player.h,newB=player.y+player.h;if(player.x+player.w>p.x&&player.x<p.x+p.w&&oldB<=p.y+5&&newB>=p.y&&player.vy>=0){player.y=p.y-player.h;player.vy=0;player.on=true}}if(player.y>H+170){player.x=Math.max(100,player.x-260);player.y=gy()-190;player.vy=0;hurt('You fell into the mist. Try the jump again.')}for(let r of runes)if(!r.taken&&ov(player,r))collect(r);if(portal.open&&ov(player,portal))advance();camera+=(Math.max(0,Math.min(stageW-W,player.x-W*.42))-camera)*Math.min(1,dt*4);particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=230*dt;p.life-=dt});particles=particles.filter(p=>p.life>0)}
-function rr(x,y,w,h,r,fill,stroke){X.beginPath();X.roundRect(x,y,w,h,r);if(fill){X.fillStyle=fill;X.fill()}if(stroke){X.strokeStyle=stroke;X.stroke()}}
-function draw(){X.clearRect(0,0,W,H);X.save();X.translate(-camera,0);for(let i=0;i<36;i++){let x=(i*181+level*67)%stageW,y=110+(i*91)%Math.max(180,H*.55),a=.12+.32*(.5+.5*Math.sin(performance.now()/800+i));X.fillStyle=`rgba(255,225,134,${a})`;X.beginPath();X.arc(x,y,1.5+(i%3),0,Math.PI*2);X.fill()}for(let p of platforms){let g=X.createLinearGradient(0,p.y,0,p.y+p.h);g.addColorStop(0,'rgba(83,103,55,.96)');g.addColorStop(.18,'rgba(42,61,39,.97)');g.addColorStop(1,'rgba(9,18,16,.99)');rr(p.x,p.y,p.w,p.h,14,g,'rgba(232,204,130,.14)')}for(let r of runes){if(r.taken)continue;X.save();let pulse=.5+.5*Math.sin(performance.now()/300+r.x);X.shadowBlur=r.glow?28+12*pulse:8;X.shadowColor=r.glow?'#ffd96f':'#80525b';let g=X.createLinearGradient(r.x,r.y,r.x,r.y+r.h);g.addColorStop(0,r.glow?'#8a6731':'#66313c');g.addColorStop(1,r.glow?'#412714':'#311824');rr(r.x,r.y,r.w,r.h,18,g,r.glow?'#ffe18e':'#a9636d');X.shadowBlur=0;X.fillStyle='#fff0c8';X.font='700 15px system-ui';X.textAlign='center';X.textBaseline='middle';X.fillText(r.text,r.x+r.w/2,r.y+r.h/2);X.restore()}X.save();X.shadowBlur=portal.open?36:11;X.shadowColor=portal.open?'#dfc0ff':'#6b4d82';let pg=X.createRadialGradient(portal.x+44,portal.y+72,8,portal.x+44,portal.y+72,72);pg.addColorStop(0,portal.open?'rgba(255,239,184,.98)':'rgba(105,78,126,.45)');pg.addColorStop(.42,portal.open?'rgba(157,105,225,.82)':'rgba(54,36,68,.7)');pg.addColorStop(1,'rgba(20,12,28,.2)');rr(portal.x,portal.y,portal.w,portal.h,36,pg,portal.open?'#e1c0ff':'#745b87');X.restore();if(!(player.inv>0&&Math.floor(player.inv*12)%2===0)){X.save();X.shadowBlur=22;X.shadowColor='#ffe18d';if(player.dir<0){X.translate(player.x+player.w,0);X.scale(-1,1);X.drawImage(fairy,0,player.y,player.w,player.h)}else X.drawImage(fairy,player.x,player.y,player.w,player.h);X.restore()}for(let p of particles){X.globalAlpha=Math.max(0,p.life);X.fillStyle=p.c;X.beginPath();X.arc(p.x,p.y,p.size,0,Math.PI*2);X.fill()}X.globalAlpha=1;X.restore()}
-function loop(t){let dt=Math.min(.033,(t-last)/1000||0);last=t;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);addEventListener('keydown',e=>{if(!running)return;if(['ArrowLeft','a','A'].includes(e.key)){e.preventDefault();keys.left=true}if(['ArrowRight','d','D'].includes(e.key)){e.preventDefault();keys.right=true}if(['ArrowUp','w','W',' '].includes(e.key)){e.preventDefault();keys.jump=true}});addEventListener('keyup',e=>{if(['ArrowLeft','a','A'].includes(e.key))keys.left=false;if(['ArrowRight','d','D'].includes(e.key))keys.right=false});document.querySelectorAll('[data-key]').forEach(b=>{let k=b.dataset.key;b.onpointerdown=e=>{e.preventDefault();if(k==='jump')keys.jump=true;else keys[k]=true};b.onpointerup=()=>{if(k!=='jump')keys[k]=false};b.onpointercancel=()=>{if(k!=='jump')keys[k]=false}});document.getElementById('start').onclick=()=>{document.getElementById('intro').classList.add('hidden');level=0;score=0;running=true;sound('click',.45);init()};document.getElementById('again').onclick=()=>{document.getElementById('complete').classList.add('hidden');level=0;score=0;running=true;init()};document.getElementById('restart').onclick=()=>{if(running)init()};document.getElementById('sfx').onclick=()=>{sfx=!sfx;document.getElementById('sfx').style.opacity=sfx?1:.4};init()})();
-</script></body></html>
+(()=>{
+"use strict";
+const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
+const fairyImg=new Image();fairyImg.src="assets/fairy.webp";
+
+const missions=[
+ {focus:"Present Simple",template:["My brother","___","___","___","every day."],answers:["usually goes","to school","by bus"],distractors:["is going","at school","on bus","goes usually"],tip:"For a routine: frequency adverb + Present Simple. Transport uses by bus."},
+ {focus:"Present Simple Negative",template:["We","___","___","___","when it rains."],answers:["don't play","football","outside"],distractors:["aren't playing","don't plays","footballing","out"],tip:"Present Simple negative: don't + base verb. We play football outside."},
+ {focus:"Present Simple Questions",template:["___","your sister","___","___","in the evening?"],answers:["Does","enjoy reading","fantasy books"],distractors:["Do","enjoys reading","is reading","fantasy book"],tip:"Third-person question: Does + subject + base verb."},
+ {focus:"Present Continuous",template:["She","___","___","___","because she can't find them."],answers:["is looking for","her keys","right now"],distractors:["looks for","her key","every day","look for"],tip:"Right now signals Present Continuous: is looking for."},
+ {focus:"Present Continuous Negative",template:["They","___","TV because they","___","___","now."],answers:["aren't watching","are doing","their homework"],distractors:["don't watch","do","homeworks","doing"],tip:"Two actions happening now: aren't watching / are doing."},
+ {focus:"Wh- Questions",template:["___","___","___","after school today?"],answers:["What","are you","doing"],distractors:["Do","you are","do","did"],tip:"Present Continuous question: What are you doing...?"},
+ {focus:"Past Simple",template:["Yesterday we","___","___","___","with our class."],answers:["visited","an old castle","near the river"],distractors:["visit","were visit","at an old castle","next the river"],tip:"Yesterday signals Past Simple: visited."},
+ {focus:"Past Simple Negative",template:["He","___","the message because his phone","___","___","all evening."],answers:["didn't see","was","switched off"],distractors:["doesn't see","didn't saw","is","switch off"],tip:"Didn't + base verb; past form of be is was."},
+ {focus:"Past Simple Questions",template:["___","you","___","___","at home?"],answers:["Did","finish your project","last night"],distractors:["Do","finished your project","yesterday night","Were"],tip:"Past question: Did + subject + base verb."},
+ {focus:"Modal Verbs",template:["You","___","___","because it","___","later today."],answers:["should take","an umbrella","might rain"],distractors:["should taking","a umbrella","must to rain","is raining"],tip:"Should + base verb; might + base verb."},
+ {focus:"Comparatives",template:["This puzzle is","___","___","___","the last one."],answers:["much","more difficult","than"],distractors:["more","difficulter","then","most difficult"],tip:"much + more + adjective + than."},
+ {focus:"First Conditional / Possibility",template:["If we","___",", we","___","___","easily."],answers:["hurry","can catch","the next train"],distractors:["will hurry","can catching","next train","could to catch"],tip:"If + Present Simple; can + base verb."}
+];
+
+let W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),last=0;
+let running=false,missionIndex=0,score=0,totalWrong=0,soundOn=true;
+const keys={left:false,right:false,jump:false};
+let player,platforms,runes,particles,portal,cameraX,stageWidth,portalSpawned=false,autoFocus=0;
+
+const sounds={ok:"assets/correct.wav",bad:"assets/wrong.wav",portal:"assets/portal.wav",click:"assets/click.wav",reward:"assets/reward.wav"};
+function sound(k,g=.7){if(!soundOn)return;const a=new Audio(sounds[k]);a.volume=g;a.play().catch(()=>{})}
+function resize(){W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener("resize",resize);resize();
+
+const ground=()=>H*.80;
+function stageLen(){return Math.max(W*1.65,2050)}
+function freeSpots(){
+ const gy=ground();
+ return [
+   {x:420,y:gy-180},{x:720,y:gy-285},{x:1020,y:gy-150},{x:1320,y:gy-275},
+   {x:1550,y:gy-175},{x:1780,y:gy-305},{x:1950,y:gy-145}
+ ].filter(p=>p.x<stageWidth-120)
+}
+function initMission(){
+ const m=missions[missionIndex];
+ stageWidth=stageLen();cameraX=0;portalSpawned=false;autoFocus=0;
+ player={x:110,y:ground()-140,w:92,h:142,vx:0,vy:0,onGround:false,hearts:4,collected:[],inv:0,dir:1};
+ particles=[];
+ platforms=[
+   {x:0,y:ground(),w:stageWidth,h:160},
+   {x:360,y:ground()-115,w:215,h:24},
+   {x:660,y:ground()-220,w:210,h:24},
+   {x:965,y:ground()-105,w:230,h:24},
+   {x:1275,y:ground()-210,w:220,h:24},
+   {x:1535,y:ground()-120,w:205,h:24},
+   {x:1760,y:ground()-245,w:205,h:24},
+ ];
+ const spots=freeSpots(),needed=m.answers.length;
+ const choices=[...m.answers,...m.distractors].slice(0,Math.min(spots.length,m.answers.length+m.distractors.length));
+ // distribute with shuffle but ensure enough
+ shuffle(choices);
+ runes=choices.map((text,i)=>({x:spots[i].x,y:spots[i].y,w:145,h:54,text,taken:false,glow:false}));
+ portal={x:stageWidth-250,y:ground()-210,w:135,h:210,open:false};
+ updateMissionUI();
+ setFeedback("Move through the forest and collect the glowing chunks in order.","");
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function setFeedback(text,type){const f=document.getElementById("feedback");f.className="feedback"+(type?" "+type:"");f.textContent=text}
+function updateMissionUI(){
+ const m=missions[missionIndex],box=document.getElementById("sentenceBox");box.innerHTML="";
+ let q=[...player.collected];
+ m.template.forEach(part=>{
+   let s=document.createElement("span");
+   if(part==="___"){s.textContent=q.length?q.shift():"?";if(s.textContent==="?")s.classList.add("blank")}
+   else s.textContent=part;
+   box.appendChild(s)
+ });
+ document.getElementById("focusTitle").textContent=m.focus;
+ document.getElementById("missionText").textContent=`Complete ${m.answers.length} missing chunks in the correct order.`;
+ document.getElementById("runeCount").textContent=player.collected.length;
+ document.getElementById("heartCount").textContent=player.hearts;
+ document.getElementById("scoreCount").textContent=score;
+ document.getElementById("progressText").textContent=`Mission ${missionIndex+1} / ${missions.length}`;
+ document.getElementById("progressFill").style.width=`${(missionIndex/missions.length)*100}%`;
+ runes.forEach(r=>{if(!r.taken)r.glow=r.text===m.answers[player.collected.length]});
+}
+function overlap(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}
+function burst(x,y,color,n=18){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*190,vy:(Math.random()-.75)*190,life:.7+Math.random()*.5,size:2+Math.random()*4,color})}
+function hurt(msg){
+ if(player.inv>0)return;
+ player.hearts--;player.inv=1.1;totalWrong++;sound("bad",.7);burst(player.x+player.w/2,player.y+player.h/2,"#ff8d76",20);setFeedback(msg,"bad");
+ if(player.hearts<=0){setTimeout(()=>{score=Math.max(0,score-25);initMission()},700)}
+ updateMissionUI()
+}
+function collectRune(r){
+ const m=missions[missionIndex],expected=m.answers[player.collected.length];
+ if(r.text===expected){
+   r.taken=true;player.collected.push(r.text);score+=30;sound("ok",.66);burst(r.x+r.w/2,r.y+r.h/2,"#ffe08a",25);
+   updateMissionUI();
+   if(player.collected.length===m.answers.length){
+     spawnPortalNearby();
+     setFeedback("Sentence complete! A large portal has appeared nearby.","good");
+   }else setFeedback(`Correct: “${r.text}”. Find the next glowing chunk.`,"good")
+ }else hurt(`“${r.text}” doesn't fit here. Hint: ${m.tip}`)
+}
+function spawnPortalNearby(){
+ portal.open=true;portalSpawned=true;
+ const desired=player.x+Math.min(520,W*.42);
+ portal.x=Math.min(stageWidth-180,Math.max(player.x+300,desired));
+ portal.y=ground()-230;autoFocus=1.2;
+ sound("portal",.8);document.getElementById("portalAlert").classList.add("show");
+ setTimeout(()=>document.getElementById("portalAlert").classList.remove("show"),3600);
+}
+function finishMission(){
+ running=false;sound("portal",.75);
+ const m=missions[missionIndex];
+ document.getElementById("missionCompleteTitle").textContent=`Mission ${missionIndex+1} complete`;
+ // safer custom recap
+ document.getElementById("missionRecap").innerHTML=`<b>Correct sentence:</b><br>${buildFullSentence(m)}<br><br><b>Why:</b> ${m.tip}`;
+ document.getElementById("missionComplete").classList.remove("hidden");
+}
+function buildFullSentence(m){
+ let ai=0;return m.template.map(x=>x==="___"?m.answers[ai++]:x).join(" ").replace(/\s+([?.!,])/g,"$1")
+}
+function nextMission(){
+ document.getElementById("missionComplete").classList.add("hidden");missionIndex++;
+ if(missionIndex>=missions.length){completeGame();return}
+ running=true;initMission()
+}
+function completeGame(){
+ sound("reward",.9);
+ document.getElementById("progressFill").style.width="100%";
+ document.getElementById("finalRecap").innerHTML=`<b>Magic score:</b> ${score}<br><b>Wrong runes triggered:</b> ${totalWrong}<br><b>Missions:</b> ${missions.length}`;
+ document.getElementById("gameComplete").classList.remove("hidden")
+}
+
+function update(dt){
+ if(!running)return;
+ if(player.inv>0)player.inv-=dt;
+ let ax=(keys.right?1:0)-(keys.left?1:0);
+ player.vx+=ax*1100*dt;player.vx*=Math.pow(.001,dt);player.vx=Math.max(-330,Math.min(330,player.vx));if(ax)player.dir=ax;
+ if(keys.jump&&player.onGround){player.vy=-560;player.onGround=false;sound("click",.14)}keys.jump=false;
+ player.vy+=1280*dt;
+ let prevY=player.y;player.x+=player.vx*dt;player.x=Math.max(0,Math.min(stageWidth-player.w,player.x));player.y+=player.vy*dt;player.onGround=false;
+ for(const p of platforms){
+   const prevBottom=prevY+player.h,newBottom=player.y+player.h;
+   if(player.x+player.w>p.x&&player.x<p.x+p.w&&prevBottom<=p.y+5&&newBottom>=p.y&&player.vy>=0){
+     player.y=p.y-player.h;player.vy=0;player.onGround=true
+   }
+ }
+ if(player.y>H+220){hurt("You fell into the mist.");player.x=Math.max(80,player.x-280);player.y=ground()-220;player.vy=0}
+ for(const r of runes)if(!r.taken&&overlap(player,r))collectRune(r);
+ if(portal.open&&overlap(player,portal)){finishMission()}
+ let target=Math.max(0,Math.min(stageWidth-W,player.x-W*.38));
+ if(autoFocus>0){
+   autoFocus-=dt;
+   target=Math.max(0,Math.min(stageWidth-W,portal.x-W*.62));
+ }
+ cameraX+=(target-cameraX)*Math.min(1,dt*(autoFocus>0?5.5:4));
+ particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=260*dt;p.life-=dt});particles=particles.filter(p=>p.life>0)
+}
+function rr(x,y,w,h,r,fill,stroke){
+ ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);ctx.save();ctx.translate(-cameraX,0);
+ // stars/fireflies
+ for(let i=0;i<45;i++){
+   let x=(i*191+missionIndex*77)%stageWidth,y=110+(i*83)%Math.max(180,H*.56),a=.16+.35*(.5+.5*Math.sin(performance.now()/850+i));
+   ctx.fillStyle=`rgba(255,224,133,${a})`;ctx.beginPath();ctx.arc(x,y,1.5+i%3,0,Math.PI*2);ctx.fill()
+ }
+ // platforms
+ for(const p of platforms){
+   let g=ctx.createLinearGradient(0,p.y,0,p.y+p.h);g.addColorStop(0,"rgba(84,100,55,.98)");g.addColorStop(.16,"rgba(43,64,39,.98)");g.addColorStop(1,"rgba(8,18,15,.99)");
+   rr(p.x,p.y,p.w,p.h,15,g,"rgba(234,205,126,.13)");
+   if(p.w<stageWidth*.8)for(let x=p.x+14;x<p.x+p.w-8;x+=22){ctx.strokeStyle="rgba(140,181,88,.65)";ctx.beginPath();ctx.moveTo(x,p.y);ctx.lineTo(x-2,p.y-10-(x%8));ctx.stroke()}
+ }
+ // runes
+ for(const r of runes){
+   if(r.taken)continue;ctx.save();let pulse=.5+.5*Math.sin(performance.now()/300+r.x);
+   ctx.shadowBlur=r.glow?34+12*pulse:10;ctx.shadowColor=r.glow?"#ffdf7a":"#934c61";
+   let g=ctx.createLinearGradient(r.x,r.y,r.x,r.y+r.h);
+   if(r.glow){g.addColorStop(0,"#9b7435");g.addColorStop(1,"#4a2e17")}else{g.addColorStop(0,"#743348");g.addColorStop(1,"#351927")}
+   rr(r.x,r.y,r.w,r.h,19,g,r.glow?"#ffe38f":"#bc7584");ctx.shadowBlur=0;ctx.fillStyle="#fff1c9";ctx.font="800 14px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";
+   wrapText(r.text,r.x+r.w/2,r.y+r.h/2,r.w-18,15);ctx.restore()
+ }
+ // portal
+ if(portal.open){
+   ctx.save();let t=performance.now()/700;ctx.shadowBlur=45;ctx.shadowColor="#d6b2ff";
+   let pg=ctx.createRadialGradient(portal.x+portal.w/2,portal.y+portal.h/2,8,portal.x+portal.w/2,portal.y+portal.h/2,95);
+   pg.addColorStop(0,"rgba(255,243,197,.98)");pg.addColorStop(.28,"rgba(181,128,244,.92)");pg.addColorStop(.62,"rgba(86,45,135,.75)");pg.addColorStop(1,"rgba(29,14,43,.2)");
+   rr(portal.x,portal.y,portal.w,portal.h,55,pg,"#e5c8ff");
+   ctx.strokeStyle="rgba(255,231,176,.72)";ctx.lineWidth=4;ctx.strokeRect(portal.x+16,portal.y+16,portal.w-32,portal.h-32);
+   ctx.fillStyle="#fff0c4";ctx.font="800 12px system-ui";ctx.textAlign="center";ctx.fillText("ENTER PORTAL",portal.x+portal.w/2,portal.y-14);
+   ctx.restore()
+ }
+ // fairy — deliberately larger
+ ctx.save();
+ let flick=player.inv>0&&Math.floor(player.inv*12)%2===0;
+ if(!flick){
+   ctx.shadowBlur=28;ctx.shadowColor="#ffe18d";
+   if(player.dir<0){ctx.translate(player.x+player.w,0);ctx.scale(-1,1);ctx.drawImage(fairyImg,0,player.y,player.w,player.h)}
+   else ctx.drawImage(fairyImg,player.x,player.y,player.w,player.h);
+ }
+ ctx.restore();
+ // particles
+ for(const p of particles){ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;
+ ctx.restore()
+}
+function wrapText(text,cx,cy,maxW,lineH){
+ const words=text.split(" ");let line="",lines=[];
+ for(const w of words){let test=line?line+" "+w:w;if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=w}else line=test}lines.push(line);
+ let y=cy-(lines.length-1)*lineH/2;for(const l of lines){ctx.fillText(l,cx,y);y+=lineH}
+}
+function loop(t){let dt=Math.min(.033,(t-last)/1000||0);last=t;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+
+function setKey(k,v){keys[k]=v}
+addEventListener("keydown",e=>{
+ if(["ArrowLeft","a","A"].includes(e.key)){e.preventDefault();setKey("left",true)}
+ if(["ArrowRight","d","D"].includes(e.key)){e.preventDefault();setKey("right",true)}
+ if(["ArrowUp","w","W"," "].includes(e.key)){e.preventDefault();keys.jump=true}
+});
+addEventListener("keyup",e=>{if(["ArrowLeft","a","A"].includes(e.key))setKey("left",false);if(["ArrowRight","d","D"].includes(e.key))setKey("right",false)});
+document.querySelectorAll("[data-key]").forEach(b=>{
+ const k=b.dataset.key;b.addEventListener("pointerdown",e=>{e.preventDefault();if(k==="jump")keys.jump=true;else setKey(k,true)});
+ b.addEventListener("pointerup",()=>{if(k!=="jump")setKey(k,false)});b.addEventListener("pointercancel",()=>{if(k!=="jump")setKey(k,false)})
+});
+
+// functional buttons
+document.getElementById("soundBtn").onclick=()=>{
+ soundOn=!soundOn;const b=document.getElementById("soundBtn");b.textContent=soundOn?"Sound On":"Sound Off";b.classList.toggle("off",!soundOn);if(soundOn)sound("click",.45)
+};
+document.getElementById("restartBtn").onclick=()=>{if(running){score=Math.max(0,score-10);sound("click",.45);initMission();setFeedback("Mission restarted.","")}};
+document.getElementById("helpBtn").onclick=()=>{running=false;document.getElementById("helpOverlay").classList.remove("hidden")};
+document.getElementById("closeHelpBtn").onclick=()=>{document.getElementById("helpOverlay").classList.add("hidden");running=true};
+document.getElementById("startBtn").onclick=()=>{document.getElementById("intro").classList.add("hidden");missionIndex=0;score=0;totalWrong=0;running=true;sound("click",.5);initMission()};
+document.getElementById("continueBtn").onclick=()=>{sound("click",.4);nextMission()};
+document.getElementById("againBtn").onclick=()=>{document.getElementById("gameComplete").classList.add("hidden");missionIndex=0;score=0;totalWrong=0;running=true;initMission()};
+
+initMission();
+})();
+</script>
+</body>
+</html>

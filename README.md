@@ -1,17 +1,17 @@
-# Fairy Run — standalone gameplay test
+# Fairy Run V2 — Challenge Edition
 
-This package intentionally contains only the first game.
+Changes after the first gameplay test:
+- 12 missions instead of 5 easy stages
+- every mission has 3 missing English chunks
+- several distractor runes per mission
+- A2 / early-B1 progression: Present Simple, Present Continuous, Past Simple, modals, comparatives, conditional-style meaning
+- much larger fairy sprite
+- portal spawns near the player's current position
+- camera briefly focuses toward the newly opened portal
+- large visible portal with ENTER PORTAL label
+- clear portal notification
+- Sound On/Off, Restart and Help buttons are functional
+- 4 hearts per mission
+- score and wrong-choice tracking
 
-Controls:
-- A / D or left / right arrows: move
-- W / Up / Space: jump
-- Touch buttons appear on smaller screens
-
-Educational mechanic:
-- each stage contains a sentence with two missing chunks
-- correct English chunks are physical collectibles
-- wrong distractor chunks cost a heart
-- after both correct chunks are collected, the portal opens
-- five short stages
-
-Static GitHub Pages compatible.
+Upload index.html, README.md and the assets folder to the repository root.
