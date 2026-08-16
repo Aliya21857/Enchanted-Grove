@@ -1,0 +1,418 @@
+{
+  "audience": "A1-A2, ages 10-14",
+  "spellPath": {
+    "learningGoals": [
+      "word order",
+      "Present Simple",
+      "Present Continuous",
+      "negatives",
+      "questions",
+      "frequency adverbs"
+    ],
+    "stages": [
+      {
+        "name": "Lantern Steps",
+        "tasks": [
+          {
+            "chunks": [
+              "every day.",
+              "to school",
+              "My brother",
+              "goes"
+            ],
+            "answer": [
+              "My brother",
+              "goes",
+              "to school",
+              "every day."
+            ],
+            "focus": "Present Simple"
+          },
+          {
+            "chunks": [
+              "usually",
+              "We",
+              "after school.",
+              "play football"
+            ],
+            "answer": [
+              "We",
+              "usually",
+              "play football",
+              "after school."
+            ],
+            "focus": "frequency adverb"
+          },
+          {
+            "chunks": [
+              "breakfast",
+              "at seven.",
+              "has",
+              "Mia"
+            ],
+            "answer": [
+              "Mia",
+              "has",
+              "breakfast",
+              "at seven."
+            ],
+            "focus": "Present Simple"
+          }
+        ]
+      },
+      {
+        "name": "Moon Bridge",
+        "tasks": [
+          {
+            "chunks": [
+              "a book",
+              "is reading",
+              "now.",
+              "She"
+            ],
+            "answer": [
+              "She",
+              "is reading",
+              "a book",
+              "now."
+            ],
+            "focus": "Present Continuous"
+          },
+          {
+            "chunks": [
+              "are",
+              "in the garden.",
+              "The children",
+              "playing"
+            ],
+            "answer": [
+              "The children",
+              "are",
+              "playing",
+              "in the garden."
+            ],
+            "focus": "Present Continuous"
+          },
+          {
+            "chunks": [
+              "today.",
+              "isn't wearing",
+              "Tom",
+              "his jacket"
+            ],
+            "answer": [
+              "Tom",
+              "isn't wearing",
+              "his jacket",
+              "today."
+            ],
+            "focus": "negative Present Continuous"
+          }
+        ]
+      },
+      {
+        "name": "Whisper Gate",
+        "tasks": [
+          {
+            "chunks": [
+              "rainy weather.",
+              "don't like",
+              "We"
+            ],
+            "answer": [
+              "We",
+              "don't like",
+              "rainy weather."
+            ],
+            "focus": "negative Present Simple"
+          },
+          {
+            "chunks": [
+              "on Sundays?",
+              "football",
+              "Do",
+              "they",
+              "play"
+            ],
+            "answer": [
+              "Do",
+              "they",
+              "play",
+              "football",
+              "on Sundays?"
+            ],
+            "focus": "Present Simple question"
+          },
+          {
+            "chunks": [
+              "doing",
+              "What",
+              "you",
+              "are",
+              "now?"
+            ],
+            "answer": [
+              "What",
+              "are",
+              "you",
+              "doing",
+              "now?"
+            ],
+            "focus": "Present Continuous question"
+          },
+          {
+            "chunks": [
+              "always",
+              "before bed.",
+              "reads",
+              "She"
+            ],
+            "answer": [
+              "She",
+              "always",
+              "reads",
+              "before bed."
+            ],
+            "focus": "frequency adverb"
+          }
+        ]
+      }
+    ]
+  },
+  "potionOfWords": {
+    "learningGoals": [
+      "collocations",
+      "verb+noun chunks",
+      "adjective/preposition chunks",
+      "everyday lexical phrases"
+    ],
+    "levels": [
+      {
+        "name": "Everyday Magic",
+        "pairs": [
+          [
+            "do",
+            "homework"
+          ],
+          [
+            "have",
+            "breakfast"
+          ],
+          [
+            "take",
+            "a photo"
+          ],
+          [
+            "make",
+            "a mistake"
+          ],
+          [
+            "go",
+            "shopping"
+          ]
+        ]
+      },
+      {
+        "name": "People & Feelings",
+        "pairs": [
+          [
+            "be good",
+            "at"
+          ],
+          [
+            "be interested",
+            "in"
+          ],
+          [
+            "be afraid",
+            "of"
+          ],
+          [
+            "be proud",
+            "of"
+          ],
+          [
+            "be kind",
+            "to"
+          ]
+        ]
+      },
+      {
+        "name": "Daily Adventures",
+        "pairs": [
+          [
+            "look",
+            "for"
+          ],
+          [
+            "listen",
+            "to"
+          ],
+          [
+            "wait",
+            "for"
+          ],
+          [
+            "talk",
+            "to"
+          ],
+          [
+            "ask",
+            "for"
+          ]
+        ]
+      },
+      {
+        "name": "Grove Mastery",
+        "pairs": [
+          [
+            "make",
+            "a decision"
+          ],
+          [
+            "take care",
+            "of"
+          ],
+          [
+            "look forward",
+            "to"
+          ],
+          [
+            "get ready",
+            "for"
+          ],
+          [
+            "spend time",
+            "with"
+          ]
+        ]
+      }
+    ]
+  },
+  "whisperingPortraits": {
+    "learningGoals": [
+      "listening for gist",
+      "listening for detail",
+      "Present Simple vs Present Continuous",
+      "everyday vocabulary"
+    ],
+    "characters": [
+      {
+        "id": "rowan",
+        "name": "Rowan",
+        "trait": "sleepy forest messenger"
+      },
+      {
+        "id": "liora",
+        "name": "Liora",
+        "trait": "young storykeeper"
+      },
+      {
+        "id": "arlen",
+        "name": "Arlen",
+        "trait": "travelling musician"
+      },
+      {
+        "id": "poppy",
+        "name": "Grandma Poppy",
+        "trait": "warm-hearted baker"
+      },
+      {
+        "id": "timble",
+        "name": "Timble",
+        "trait": "shy young explorer"
+      },
+      {
+        "id": "hootwell",
+        "name": "Professor Hootwell",
+        "trait": "wise owl scholar"
+      }
+    ],
+    "tasks": [
+      {
+        "speaker": "rowan",
+        "line": "I usually wake up early, but today I'm still tired because I travelled all night.",
+        "question": "Why is Rowan tired today?",
+        "answer": "He travelled all night.",
+        "focus": "gist + detail"
+      },
+      {
+        "speaker": "liora",
+        "line": "I'm looking for my red book. I need it for the story circle tonight.",
+        "question": "What is Liora looking for?",
+        "answer": "Her red book.",
+        "focus": "detail"
+      },
+      {
+        "speaker": "arlen",
+        "line": "Every Friday I play music by the river, but tonight I'm playing in the Moon Hall.",
+        "question": "Where is Arlen playing tonight?",
+        "answer": "In the Moon Hall.",
+        "focus": "Present Simple vs Continuous"
+      },
+      {
+        "speaker": "poppy",
+        "line": "The apple pies are in the oven now. I bake them every Sunday for the children.",
+        "question": "What is Grandma Poppy making now?",
+        "answer": "Apple pies.",
+        "focus": "detail"
+      },
+      {
+        "speaker": "timble",
+        "line": "I don't like loud places. I'm waiting behind the old oak until the festival becomes quieter.",
+        "question": "Where is Timble waiting?",
+        "answer": "Behind the old oak.",
+        "focus": "preposition + detail"
+      },
+      {
+        "speaker": "hootwell",
+        "line": "I teach young explorers how to read maps. Today we're learning how to find north by the stars.",
+        "question": "What are they learning today?",
+        "answer": "How to find north by the stars.",
+        "focus": "gist"
+      },
+      {
+        "speaker": "liora",
+        "line": "My sister usually visits me on Saturdays, but this weekend she's staying at home.",
+        "question": "Is Liora's sister visiting this weekend?",
+        "answer": "No, she is staying at home.",
+        "focus": "contrast"
+      },
+      {
+        "speaker": "arlen",
+        "line": "Please listen carefully. The silver key is under the small blue box, not beside it.",
+        "question": "Where is the silver key?",
+        "answer": "Under the small blue box.",
+        "focus": "prepositions"
+      },
+      {
+        "speaker": "poppy",
+        "line": "I need some honey for the cakes. Could you bring me the jar next to the flowers?",
+        "question": "What does Grandma Poppy need?",
+        "answer": "Honey.",
+        "focus": "functional language"
+      },
+      {
+        "speaker": "rowan",
+        "line": "I never fly through the dark valley alone. I usually take the lantern path.",
+        "question": "Which path does Rowan usually take?",
+        "answer": "The lantern path.",
+        "focus": "frequency + detail"
+      },
+      {
+        "speaker": "timble",
+        "line": "I'm carrying a little map because I want to find the hidden waterfall.",
+        "question": "Why is Timble carrying a map?",
+        "answer": "To find the hidden waterfall.",
+        "focus": "purpose"
+      },
+      {
+        "speaker": "hootwell",
+        "line": "Remember: we use the present continuous for actions happening now.",
+        "question": "Which tense does Professor Hootwell mention?",
+        "answer": "The present continuous.",
+        "focus": "language awareness"
+      }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+.path-scene{--restored:0;height:260px!important;position:relative;background:linear-gradient(180deg,rgba(2,8,12,.05),rgba(3,11,10,.78))!important}
+.path-scene:before{content:"";position:absolute;z-index:1;inset:0;background:url('../assets/generated/bridge.png') center 55%/88% auto no-repeat;filter:grayscale(1) brightness(.24);opacity:.64}
+.path-scene:after{content:"";position:absolute;z-index:2;left:6%;bottom:0;width:calc(var(--restored) * 8.8%);height:100%;background:url('../assets/generated/bridge.png') left 55%/880px auto no-repeat;filter:drop-shadow(0 0 20px #ffd36c);transition:width .8s cubic-bezier(.2,.8,.2,1);clip-path:inset(0 0 0 0)}
+.path-piece{z-index:3!important;opacity:.12!important}.path-piece.on{opacity:.72!important}.path-fairy{z-index:5!important}
+.cauldron{width:370px!important;height:330px!important;margin:0 auto!important;border:0!important;border-radius:0!important;background:url('../assets/generated/cauldron.png') center/contain no-repeat!important;box-shadow:none!important;filter:drop-shadow(0 28px 24px #000);transition:.25s!important}
+.cauldron:before,.cauldron:after{display:none!important}.cauldron.ready{transform:scale(1.07);filter:brightness(1.25) drop-shadow(0 0 34px var(--brew))}.alchemy{align-items:start}.brew-center{margin-top:0}.word-bank{min-height:520px}.wordcard{cursor:grab}.wordcard:active{cursor:grabbing}
+@media(max-width:760px){.cauldron{width:260px!important;height:230px!important}.word-bank{min-height:auto}.path-scene{height:180px!important}}
