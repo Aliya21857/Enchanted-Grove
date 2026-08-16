@@ -133,15 +133,6 @@ button:focus-visible{outline:2px solid #ffe7a6;outline-offset:3px}
   .tool{padding:10px 11px}.portal-alert{width:210px;font-size:10px}
 }
 
-.collect-mobile{background:linear-gradient(180deg,#835e2d,#4b2e16)!important;color:#fff0bb!important;font-weight:800}
-.rune-prompt{
-  position:absolute;z-index:35;left:50%;bottom:86px;transform:translateX(-50%);
-  padding:10px 16px;border-radius:999px;background:rgba(26,18,10,.9);
-  border:1px solid rgba(255,226,151,.5);color:#ffe6a7;
-  font:800 11px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.08em;
-  box-shadow:0 0 24px rgba(255,207,93,.18);opacity:0;transition:.18s;pointer-events:none
-}
-.rune-prompt.show{opacity:1}
 
 </style>
 </head>
@@ -174,27 +165,24 @@ button:focus-visible{outline:2px solid #ffe7a6;outline-offset:3px}
       <div class="meta"><strong id="scoreCount">0</strong><small>magic</small></div>
     </div>
   </aside>
-
-  <div class="rune-prompt" id="runePrompt">Press E to choose rune</div>
-  <div class="portal-alert" id="portalAlert"><span class="arrow">➜</span><strong>Portal opened!</strong>It appeared nearby. Follow the purple light.</div>
-  <div class="feedback" id="feedback">Move: A/D or ←/→ · Jump: W/↑/Space · Choose nearby rune: E/Enter</div>
+  <div class="portal-alert" id="portalAlert"><span class="arrow">➜</span><strong>Portal opened!</strong>It appeared just ahead. Run into the purple gate.</div>
+  <div class="feedback" id="feedback">Move: A/D or ←/→ · Jump: W / ↑ / Space · Choose: hit a word-block from below</div>
 
   <div class="mobile">
     <button data-key="left">◀</button>
     <button data-key="jump">▲</button>
     <button data-key="right">▶</button>
-    <button id="collectBtn" class="collect-mobile">E</button>
   </div>
 
   <div class="overlay" id="intro">
     <div class="card">
       <div class="kicker">Challenge Edition</div>
       <h2>Fairy Run V2</h2>
-      <p>This version keeps the challenge but makes each mission cleaner: <b>only 1–2 missing chunks</b>.</p>
+      <p>Each mission now has <b>exactly one missing chunk</b>. Choose it like a real platformer: jump and hit the correct word-block from below.</p>
       <ul>
-        <li>Each mission has only <b>1 or 2 missing chunks</b>, with close distractors.</li>
+        <li>Each mission has exactly <b>one blank</b> and four possible word-blocks.</li>
         <li>Several distractor runes are placed on the route.</li>
-        <li>Runes are <b>never selected by touching them</b>. Stand near a rune and press <b>E / Enter</b> to choose it.</li><li>A wrong rune costs a heart only after an intentional choice.</li>
+        <li>Run freely under the blocks: touching their sides does nothing.</li><li>To choose an answer, <b>jump and hit a block from below</b>.</li><li>A wrong block costs a heart only when you deliberately hit it from below.</li>
         <li>The portal now appears <b>close to the fairy</b> as soon as the sentence is complete.</li>
         <li>The fairy is much larger and easier to see.</li>
       </ul><br>
@@ -228,10 +216,10 @@ button:focus-visible{outline:2px solid #ffe7a6;outline-offset:3px}
       <ul>
         <li><b>A / D</b> or <b>← / →</b> — move</li>
         <li><b>W / ↑ / Space</b> — jump</li>
-        <li>Move freely past any rune. To choose one, stand near it and press <b>E / Enter</b>.</li>
-        <li>The next correct rune glows more brightly, but you still choose it yourself.</li>
+        <li>Run under the answer blocks. To choose one, jump and hit it from below.</li>
+        <li>The blocks do not block your movement. The choice is registered only by a jump-hit from below.</li>
         <li>Wrong runes cost one heart.</li>
-        <li>When all blanks are complete, a large purple portal spawns nearby.</li>
+        <li>After the correct jump-hit, a large purple portal spawns nearby.</li>
       </ul><br>
       <button class="start" id="closeHelpBtn">Back to Game</button>
     </div>
@@ -245,18 +233,18 @@ const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
 const fairyImg=new Image();fairyImg.src="assets/fairy.webp";
 
 const missions=[
- {focus:"Present Simple",template:["My brother","___","to school every day."],answers:["usually goes"],distractors:["goes usually","is going","usually go"],tip:"With he/she/it, use the -s form. Frequency adverbs usually come before the main verb."},
- {focus:"Present Simple Negative",template:["We","___","football outside when it rains."],answers:["don't play"],distractors:["aren't playing","don't plays","not play"],tip:"Present Simple negative: don't + base verb."},
- {focus:"Present Simple Questions",template:["___","your sister","___","fantasy books?"],answers:["Does","enjoy reading"],distractors:["Do","enjoys reading","Is","enjoy read"],tip:"Third-person question: Does + subject + base verb."},
- {focus:"Present Continuous",template:["She","___","her keys right now."],answers:["is looking for"],distractors:["looks for","look for","is look for"],tip:"Right now signals Present Continuous: is + verb-ing."},
- {focus:"Present Continuous Negative",template:["They","___","TV because they","___","their homework."],answers:["aren't watching","are doing"],distractors:["don't watch","aren't watch","do","doing"],tip:"For actions happening now: are/aren't + verb-ing."},
- {focus:"Wh- Questions",template:["What","___","after school today?"],answers:["are you doing"],distractors:["do you do","you are doing","are you do"],tip:"Present Continuous question: What are you doing...?"},
- {focus:"Past Simple",template:["Yesterday we","___","an old castle near the river."],answers:["visited"],distractors:["visit","were visit","have visited"],tip:"Yesterday signals Past Simple."},
- {focus:"Past Simple Negative",template:["He","___","the message because his phone","___","off."],answers:["didn't see","was"],distractors:["didn't saw","doesn't see","is","were"],tip:"Didn't + base verb; the past of is is was."},
- {focus:"Modal Verbs",template:["You","___","an umbrella because it","___","later."],answers:["should take","might rain"],distractors:["should taking","must to take","might rains","is rain"],tip:"Should + base verb; might + base verb."},
- {focus:"Comparatives",template:["This puzzle is","___","the last one."],answers:["much more difficult than"],distractors:["more much difficult than","much difficulter than","most difficult then"],tip:"Use much more + adjective + than."},
- {focus:"First Conditional / Possibility",template:["If we hurry, we","___","the next train."],answers:["can catch"],distractors:["can catching","could to catch","will can catch"],tip:"Can is followed by the base verb: can catch."},
- {focus:"Mixed Review",template:["Why","___","your homework yet?"],answers:["haven't you finished"],distractors:["didn't you finished","aren't you finish","haven't you finish"],tip:"Present Perfect question: haven't + subject + past participle."}
+ {focus:"Present Simple",template:["My brother","___","to school every day."],answer:"usually goes",choices:["usually goes","goes usually","is going","usually go"],tip:"With he/she/it, use the -s form. Frequency adverbs normally come before the main verb."},
+ {focus:"Present Simple Negative",template:["We","___","football outside when it rains."],answer:"don't play",choices:["don't play","aren't playing","don't plays","not play"],tip:"Present Simple negative: don't + base verb."},
+ {focus:"Present Simple Question",template:["___","your sister enjoy fantasy books?"],answer:"Does",choices:["Does","Do","Is","Did"],tip:"Third-person Present Simple question: Does + subject + base verb."},
+ {focus:"Present Continuous",template:["She","___","her keys right now."],answer:"is looking for",choices:["is looking for","looks for","look for","is look for"],tip:"Right now signals Present Continuous: is + verb-ing."},
+ {focus:"Present Continuous Negative",template:["They","___","TV because they are doing homework."],answer:"aren't watching",choices:["aren't watching","don't watch","aren't watch","not watching"],tip:"For an action happening now, use aren't + verb-ing."},
+ {focus:"Wh- Question",template:["What","___","after school today?"],answer:"are you doing",choices:["are you doing","do you do","you are doing","are you do"],tip:"Present Continuous question: What are you doing...?"},
+ {focus:"Past Simple",template:["Yesterday we","___","an old castle near the river."],answer:"visited",choices:["visited","visit","were visit","have visited"],tip:"Yesterday signals Past Simple."},
+ {focus:"Past Simple Negative",template:["He","___","the message because his phone was off."],answer:"didn't see",choices:["didn't see","didn't saw","doesn't see","not saw"],tip:"After didn't, use the base verb: see."},
+ {focus:"Modal Verb",template:["You","___","an umbrella because it might rain later."],answer:"should take",choices:["should take","should taking","must to take","should took"],tip:"Should is followed by the base verb."},
+ {focus:"Comparatives",template:["This puzzle is","___","the last one."],answer:"much more difficult than",choices:["much more difficult than","more much difficult than","much difficulter than","most difficult then"],tip:"Use much more + adjective + than."},
+ {focus:"Possibility",template:["If we hurry, we","___","the next train."],answer:"can catch",choices:["can catch","can catching","could to catch","will can catch"],tip:"Can is followed by the base verb."},
+ {focus:"Present Perfect",template:["Why","___","your homework yet?"],answer:"haven't you finished",choices:["haven't you finished","didn't you finished","aren't you finish","haven't you finish"],tip:"Present Perfect question: haven't + subject + past participle."}
 ];
 
 let W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),last=0;
@@ -273,15 +261,17 @@ const ground=()=>H*.80;
 function stageLen(){return Math.max(W*1.65,2050)}
 function freeSpots(){
  const gy=ground();
+ // Blocks are intentionally suspended above the running path.
  return [
-   {x:420,y:gy-180},{x:720,y:gy-285},{x:1020,y:gy-150},{x:1320,y:gy-275},
-   {x:1550,y:gy-175},{x:1780,y:gy-305},{x:1950,y:gy-145}
- ].filter(p=>p.x<stageWidth-120)
-}
-function initMission(){
+   {x:500,y:gy-220},
+   {x:820,y:gy-285},
+   {x:1160,y:gy-215},
+   {x:1480,y:gy-285}
+ ].filter(p=>p.x<stageWidth-160)
+}function initMission(){
  const m=missions[missionIndex];
  stageWidth=stageLen();cameraX=0;portalSpawned=false;autoFocus=0;
- player={x:120,y:ground()-112,w:66,h:112,drawW:170,drawH:260,vx:0,vy:0,onGround:false,hearts:4,collected:[],inv:0,dir:1};
+ player={x:120,y:ground()-130,w:72,h:122,drawW:245,drawH:365,vx:0,vy:0,onGround:false,hearts:4,answered:false,inv:0,dir:1};
  particles=[];
  platforms=[
    {x:0,y:ground(),w:stageWidth,h:160},
@@ -292,36 +282,36 @@ function initMission(){
    {x:1535,y:ground()-120,w:205,h:24},
    {x:1760,y:ground()-245,w:205,h:24},
  ];
- const spots=freeSpots(),needed=m.answers.length;
- const choices=[...m.answers,...m.distractors].slice(0,Math.min(spots.length,m.answers.length+m.distractors.length));
- // distribute with shuffle but ensure enough
- shuffle(choices);
- runes=choices.map((text,i)=>({x:spots[i].x,y:spots[i].y,w:145,h:54,text,taken:false,glow:false}));
+ const spots=freeSpots();
+ const choices=shuffle([...m.choices]);
+ runes=choices.map((text,i)=>({
+   x:spots[i].x,y:spots[i].y,w:155,h:62,text,
+   taken:false,hit:false,bounce:0
+ }));
  portal={x:stageWidth-250,y:ground()-210,w:135,h:210,open:false};
  updateMissionUI();
- setFeedback("Move freely. When you want a rune, stand near it and press E / Enter.","");
+ setFeedback("Run under the blocks. Jump and hit the correct answer from below.","");
 }
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function setFeedback(text,type){const f=document.getElementById("feedback");f.className="feedback"+(type?" "+type:"");f.textContent=text}
 function updateMissionUI(){
  const m=missions[missionIndex],box=document.getElementById("sentenceBox");box.innerHTML="";
- let q=[...player.collected];
  m.template.forEach(part=>{
    let s=document.createElement("span");
-   if(part==="___"){s.textContent=q.length?q.shift():"?";if(s.textContent==="?")s.classList.add("blank")}
-   else s.textContent=part;
-   box.appendChild(s)
+   if(part==="___"){
+     s.textContent=player.answered ? m.answer : "?";
+     if(!player.answered)s.classList.add("blank");
+   } else s.textContent=part;
+   box.appendChild(s);
  });
  document.getElementById("focusTitle").textContent=m.focus;
- document.getElementById("missionText").textContent=`Complete ${m.answers.length} missing ${m.answers.length===1?'chunk':'chunks'}.`;
- document.getElementById("runeCount").textContent=player.collected.length;
+ document.getElementById("missionText").textContent="One blank. Jump and hit the correct block from below.";
+ document.getElementById("runeCount").textContent=player.answered?1:0;
  document.getElementById("heartCount").textContent=player.hearts;
  document.getElementById("scoreCount").textContent=score;
  document.getElementById("progressText").textContent=`Mission ${missionIndex+1} / ${missions.length}`;
  document.getElementById("progressFill").style.width=`${(missionIndex/missions.length)*100}%`;
- runes.forEach(r=>{if(!r.taken)r.glow=r.text===m.answers[player.collected.length]});
-}
-function overlap(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}
+}function overlap(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}
 function burst(x,y,color,n=18){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*190,vy:(Math.random()-.75)*190,life:.7+Math.random()*.5,size:2+Math.random()*4,color})}
 function hurt(msg){
  if(player.inv>0)return;
@@ -330,40 +320,33 @@ function hurt(msg){
  updateMissionUI()
 }
 
-function getNearestRune(){
- let best=null,bestDist=Infinity;
- const px=player.x+player.w/2, py=player.y+player.h/2;
- for(const r of runes){
-   if(r.taken)continue;
-   const rx=r.x+r.w/2, ry=r.y+r.h/2;
-   const dx=rx-px,dy=ry-py;
-   const d=Math.sqrt(dx*dx+dy*dy);
-   if(d<150&&d<bestDist){best=r;bestDist=d}
- }
- return best
-}
-function tryChooseRune(){
- if(!running)return;
- const r=getNearestRune();
- if(!r){setFeedback("Move a little closer to a rune, then press E or Enter.","");return}
- collectRune(r)
-}
-
-function collectRune(r){
- const m=missions[missionIndex],expected=m.answers[player.collected.length];
- if(r.text===expected){
-   r.taken=true;player.collected.push(r.text);score+=30;sound("ok",.66);burst(r.x+r.w/2,r.y+r.h/2,"#ffe08a",25);
+function hitAnswerBlock(r){
+ if(player.answered || r.hit)return;
+ const m=missions[missionIndex];
+ r.hit=true;r.bounce=1;
+ if(r.text===m.answer){
+   player.answered=true;score+=50;sound("ok",.72);
+   burst(r.x+r.w/2,r.y+r.h/2,"#ffe08a",30);
    updateMissionUI();
-   if(player.collected.length===m.answers.length){
-     spawnPortalNearby();
-     setFeedback("Sentence complete! A large portal has appeared nearby.","good");
-   }else setFeedback(`Correct: “${r.text}”. Find the next glowing chunk.`,"good")
- }else hurt(`“${r.text}” doesn't fit here. Hint: ${m.tip}`)
+   spawnPortalNearby();
+   setFeedback(`Correct: “${r.text}”. +50 magic! The portal is open.`,"good");
+ }else{
+   player.hearts--;totalWrong++;sound("bad",.68);
+   burst(r.x+r.w/2,r.y+r.h/2,"#ff8d76",20);
+   setFeedback(`“${r.text}” is not correct. ${m.tip}`,"bad");
+   if(player.hearts<=0){
+     setTimeout(()=>{score=Math.max(0,score-20);initMission()},700);
+   } else {
+     // Let the same wrong block be hit again later, but only after a short visual bounce.
+     setTimeout(()=>{r.hit=false},450);
+   }
+   updateMissionUI();
+ }
 }
 function spawnPortalNearby(){
  portal.open=true;portalSpawned=true;
- const desired=player.x+Math.min(520,W*.42);
- portal.x=Math.min(stageWidth-180,Math.max(player.x+300,desired));
+ const desired=player.x+Math.min(360,W*.30);
+ portal.x=Math.min(stageWidth-180,Math.max(player.x+220,desired));
  portal.y=ground()-230;autoFocus=1.2;
  sound("portal",.8);document.getElementById("portalAlert").classList.add("show");
  setTimeout(()=>document.getElementById("portalAlert").classList.remove("show"),3600);
@@ -406,10 +389,20 @@ function update(dt){
    }
  }
  if(player.y>H+220){hurt("You fell into the mist.");player.x=Math.max(80,player.x-280);player.y=ground()-220;player.vy=0}
- // Runes are intentionally NON-COLLIDING. Passing through or touching a rune does nothing.
- const near=getNearestRune();
- document.getElementById("runePrompt").classList.toggle("show",!!near);
- if(near) document.getElementById("runePrompt").textContent=`Press E / Enter to choose “${near.text}”`;
+ // Answer blocks never block horizontal movement and never trigger on side contact.
+ for(const r of runes){
+   if(r.bounce>0)r.bounce=Math.max(0,r.bounce-dt*5);
+   const horizontal = player.x+player.w > r.x+10 && player.x < r.x+r.w-10;
+   const playerTop = player.y;
+   const prevTop = player.y - player.vy*dt;
+   const blockBottom = r.y+r.h;
+   const hitFromBelow = player.vy < 0 && horizontal && prevTop >= blockBottom-8 && playerTop <= blockBottom+8;
+   if(hitFromBelow){
+     player.y=blockBottom+8;
+     player.vy=120;
+     hitAnswerBlock(r);
+   }
+ }
  if(portal.open&&overlap(player,portal)){finishMission()}
  let target=Math.max(0,Math.min(stageWidth-W,player.x-W*.38));
  if(autoFocus>0){
@@ -435,16 +428,29 @@ function draw(){
    rr(p.x,p.y,p.w,p.h,15,g,"rgba(234,205,126,.13)");
    if(p.w<stageWidth*.8)for(let x=p.x+14;x<p.x+p.w-8;x+=22){ctx.strokeStyle="rgba(140,181,88,.65)";ctx.beginPath();ctx.moveTo(x,p.y);ctx.lineTo(x-2,p.y-10-(x%8));ctx.stroke()}
  }
- // runes
+ // answer bricks suspended overhead
  for(const r of runes){
-   if(r.taken)continue;ctx.save();let pulse=.5+.5*Math.sin(performance.now()/300+r.x);
-   ctx.shadowBlur=r.glow?34+12*pulse:10;ctx.shadowColor=r.glow?"#ffdf7a":"#934c61";
-   let g=ctx.createLinearGradient(r.x,r.y,r.x,r.y+r.h);
-   if(r.glow){g.addColorStop(0,"#9b7435");g.addColorStop(1,"#4a2e17")}else{g.addColorStop(0,"#743348");g.addColorStop(1,"#351927")}
-   rr(r.x,r.y,r.w,r.h,19,g,r.glow?"#ffe38f":"#bc7584");ctx.shadowBlur=0;ctx.fillStyle="#fff1c9";ctx.font="800 14px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";
-   wrapText(r.text,r.x+r.w/2,r.y+r.h/2,r.w-18,15);ctx.restore()
+   ctx.save();
+   const y=r.y-(r.bounce>0?Math.sin(r.bounce*Math.PI)*10:0);
+   let g=ctx.createLinearGradient(r.x,y,r.x,y+r.h);
+   const correct=!player.answered && r.text===missions[missionIndex].answer;
+   if(correct){
+     g.addColorStop(0,"#b07b35");g.addColorStop(1,"#65401f");
+     ctx.shadowBlur=18;ctx.shadowColor="rgba(255,218,113,.35)";
+   }else{
+     g.addColorStop(0,"#6f3448");g.addColorStop(1,"#351927");
+     ctx.shadowBlur=8;ctx.shadowColor="rgba(120,60,80,.25)";
+   }
+   rr(r.x,y,r.w,r.h,12,g,correct?"#d9ad62":"#9f6371");
+   // brick seams
+   ctx.shadowBlur=0;ctx.strokeStyle="rgba(255,237,193,.12)";ctx.lineWidth=1;
+   ctx.beginPath();ctx.moveTo(r.x+r.w/2,y);ctx.lineTo(r.x+r.w/2,y+r.h);ctx.stroke();
+   ctx.beginPath();ctx.moveTo(r.x,y+r.h/2);ctx.lineTo(r.x+r.w,y+r.h/2);ctx.stroke();
+   ctx.fillStyle="#fff1cb";ctx.font="800 13px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";
+   wrapText(r.text,r.x+r.w/2,y+r.h/2,r.w-18,14);
+   ctx.restore()
  }
- // portal
+// portal
  if(portal.open){
    ctx.save();let t=performance.now()/700;ctx.shadowBlur=45;ctx.shadowColor="#d6b2ff";
    let pg=ctx.createRadialGradient(portal.x+portal.w/2,portal.y+portal.h/2,8,portal.x+portal.w/2,portal.y+portal.h/2,95);
@@ -483,14 +489,12 @@ addEventListener("keydown",e=>{
  if(["ArrowLeft","a","A"].includes(e.key)){e.preventDefault();setKey("left",true)}
  if(["ArrowRight","d","D"].includes(e.key)){e.preventDefault();setKey("right",true)}
  if(["ArrowUp","w","W"," "].includes(e.key)){e.preventDefault();keys.jump=true}
- if(["e","E","Enter"].includes(e.key)){e.preventDefault();tryChooseRune()}
 });
 addEventListener("keyup",e=>{if(["ArrowLeft","a","A"].includes(e.key))setKey("left",false);if(["ArrowRight","d","D"].includes(e.key))setKey("right",false)});
 document.querySelectorAll("[data-key]").forEach(b=>{
  const k=b.dataset.key;b.addEventListener("pointerdown",e=>{e.preventDefault();if(k==="jump")keys.jump=true;else setKey(k,true)});
  b.addEventListener("pointerup",()=>{if(k!=="jump")setKey(k,false)});b.addEventListener("pointercancel",()=>{if(k!=="jump")setKey(k,false)})
 });
-document.getElementById("collectBtn").addEventListener("pointerdown",e=>{e.preventDefault();tryChooseRune()});
 
 // functional buttons
 document.getElementById("soundBtn").onclick=()=>{
