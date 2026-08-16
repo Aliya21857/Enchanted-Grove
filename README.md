@@ -1,18 +1,21 @@
-# Fairy Run V4 — Jump Block Edition
+# Fairy Forest Quest — Moon Bridge Chapter
 
-Gameplay changes:
-- exactly ONE blank in every sentence
-- four answer blocks per mission
-- blocks hang above the running path
-- touching, passing beside, or running under a block does NOTHING
-- an answer is selected ONLY when the fairy jumps and hits the underside of the block
-- correct block: +50 magic, sentence completes, portal opens nearby
-- wrong block: one heart lost, only because the player intentionally hit it
-- fairy artwork enlarged again; movement hitbox remains smaller
-- portal appears close to the player
-- Sound / Help / Restart remain functional
+Polished single-game prototype.
+
+What is included:
+- one continuous side-scrolling fantasy level
+- five different in-world English obstacles
+- one blank per sentence
+- intentional answer selection only
+- bridge building, doors opening, crystal crossing, rune door, final Moon Gate
+- 3-heart system; a heart is lost only on an intentional wrong choice
+- checkpoints and fall recovery without punishment
+- functional Help / SFX / Restart
+- no background music and no synthetic speech
+- generated fairy sprite and generated environment art integrated as actual game assets
 
 Controls:
 - A/D or Left/Right: move
 - W / Up / Space: jump
-- answer selection: jump-hit the block from below
+
+Upload index.html, README.md and the assets folder to GitHub Pages root.

@@ -2,513 +2,431 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#07111d">
-<title>Fairy Run V2 — Challenge Edition</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111b">
+<title>Fairy Forest Quest — Moon Bridge Chapter</title>
 <style>
 :root{
-  --gold:#f6d78d; --gold2:#ffe9b4; --ink:#fff7df; --muted:#ded3c2;
-  --red:#a84237; --deep:#07111b; --green:#6eaf76; --violet:#9a6be6;
+ --gold:#f7d98f;--gold2:#ffe9b6;--cream:#fff6df;--muted:#d8ccba;
+ --deep:#07111b;--panel:rgba(6,12,20,.82);--red:#a83f37;--green:#498353;
 }
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03070c;color:var(--ink);font-family:Georgia,serif}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03070c;color:var(--cream);font-family:Georgia,serif}
 button{font:inherit;cursor:pointer}
-button:focus-visible{outline:2px solid #ffe7a6;outline-offset:3px}
-#app{position:relative;width:100%;height:100%;overflow:hidden}
-#bg{
-  position:absolute;inset:0;
-  background:
-    radial-gradient(circle at 70% 20%,rgba(255,221,126,.14),transparent 28%),
-    linear-gradient(180deg,rgba(2,5,9,.02),rgba(2,5,9,.22)),
-    url('assets/forest.webp') center/cover no-repeat;
-  filter:saturate(1.13) contrast(1.02);
-  transform:scale(1.035)
-}
-#atmos{position:absolute;inset:0;pointer-events:none;background:
-  linear-gradient(90deg,rgba(4,12,18,.12),transparent 45%,rgba(12,6,15,.18)),
-  radial-gradient(circle at 18% 84%,rgba(67,159,165,.12),transparent 28%)}
-#canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+button:focus-visible{outline:2px solid #ffe8a6;outline-offset:3px}
+#app{position:relative;width:100%;height:100%;overflow:hidden;background:#02060a}
+#backdrop{position:absolute;inset:0;background:
+ linear-gradient(180deg,rgba(2,6,10,.06),rgba(2,6,10,.2)),
+ url('assets/background.png') center/cover no-repeat;
+ filter:saturate(1.05) brightness(.84);transform:scale(1.04)}
+#backdrop::after{content:"";position:absolute;inset:0;background:
+ radial-gradient(circle at 70% 18%,rgba(255,220,126,.11),transparent 25%),
+ linear-gradient(90deg,rgba(2,7,11,.24),transparent 35%,rgba(2,7,11,.14))}
+#viewport{position:absolute;inset:0;overflow:hidden}
+#world{position:absolute;left:0;top:0;width:5480px;height:900px;transform-origin:0 0;will-change:transform}
+.asset{position:absolute;object-fit:contain;pointer-events:none;user-select:none}
+.decor{opacity:.96;filter:drop-shadow(0 16px 22px rgba(0,0,0,.34))}
+#mistLayer{position:absolute;inset:0;pointer-events:none;z-index:7;background:linear-gradient(180deg,transparent 72%,rgba(7,25,30,.12));mix-blend-mode:screen}
+.water-zone{position:absolute;z-index:1;height:180px;background:
+ linear-gradient(180deg,rgba(89,174,201,.2),rgba(8,47,69,.82));
+ border-top:2px solid rgba(151,224,235,.26);overflow:hidden;box-shadow:inset 0 22px 35px rgba(72,184,213,.09)}
+.water-zone::after{content:"";position:absolute;inset:-20px;background:
+ repeating-linear-gradient(176deg,transparent 0 22px,rgba(183,238,245,.12) 23px 25px,transparent 26px 43px);
+ animation:water 5s linear infinite}
+@keyframes water{to{transform:translateX(80px)}}
 
-.topbar{
-  position:absolute;z-index:30;left:15px;right:15px;top:14px;height:62px;
-  display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;pointer-events:none
+#player{position:absolute;z-index:30;width:158px;height:250px;pointer-events:none;transform-origin:50% 100%;will-change:left,top,transform}
+#player img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 12px 16px rgba(0,0,0,.44))}
+#player.invincible{opacity:.45}
+#player.magic img{filter:drop-shadow(0 12px 16px rgba(0,0,0,.44)) drop-shadow(0 0 22px rgba(255,216,108,.5))}
+
+.choice{
+ position:absolute;z-index:22;display:grid;place-items:center;text-align:center;padding:8px 12px;
+ color:#fff1c9;font:800 15px/1.15 system-ui,sans-serif;letter-spacing:.01em;
+ border:1px solid rgba(241,207,128,.42);background:linear-gradient(180deg,rgba(68,39,52,.95),rgba(31,18,30,.96));
+ box-shadow:0 13px 24px rgba(0,0,0,.34),inset 0 0 18px rgba(255,255,255,.025);
+ transition:.22s;user-select:none
 }
-.topbar>*{pointer-events:auto}
-.brand,.tool{
-  border:1px solid rgba(246,215,141,.42);background:rgba(5,11,18,.82);color:#ffe2a2;
-  border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,.3);backdrop-filter:blur(10px)
-}
-.brand{padding:12px 16px;font-weight:700;font-size:18px}
-.progress{
-  justify-self:center;width:min(720px,61vw);padding:10px 15px;border-radius:999px;
-  background:rgba(5,11,18,.8);border:1px solid rgba(246,215,141,.28);backdrop-filter:blur(10px);
-  display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
-}
-.progress strong{color:#ffe0a0}
-.progress small{font:11px system-ui,sans-serif;color:#ded2c0;white-space:nowrap}
-.track{height:10px;border-radius:999px;background:rgba(0,0,0,.36);overflow:hidden;border:1px solid rgba(246,215,141,.18)}
-.track div{height:100%;width:0;background:linear-gradient(90deg,#dd873e,#ffe09a);transition:width .35s}
+.choice::after{content:"";position:absolute;inset:-6px;border:1px solid rgba(255,226,147,.09);border-radius:inherit;pointer-events:none}
+.choice.stone{width:146px;height:76px;border-radius:48% 52% 45% 55%/58% 52% 48% 42%;
+ background:radial-gradient(circle at 35% 20%,rgba(255,255,255,.06),transparent 25%),linear-gradient(145deg,#57646b,#222b31 64%,#11171c);border:2px solid #718d9a}
+.choice.lantern{width:175px;height:64px;border-radius:18px;background:linear-gradient(180deg,#6b3c2d,#2e1e1d);border-color:#bc8a53;box-shadow:0 0 18px rgba(255,190,79,.16),0 14px 24px rgba(0,0,0,.34)}
+.choice.lantern::before{content:"✦";position:absolute;top:-35px;color:#ffd786;font-size:30px;text-shadow:0 0 18px #ffbd47}
+.choice.crystal-choice{width:150px;height:72px;border-radius:18px;background:linear-gradient(180deg,rgba(49,61,76,.96),rgba(21,26,35,.96));border-color:#6a9bc1}
+.choice.rune-pad{width:155px;height:44px;border-radius:50%;background:radial-gradient(ellipse,#5e376d,#20152c 67%);border:2px solid #9f72bd;box-shadow:0 0 20px rgba(157,103,204,.22)}
+.choice.orb{width:145px;height:62px;border-radius:999px;background:radial-gradient(circle at 45% 25%,rgba(255,243,196,.17),transparent 32%),linear-gradient(180deg,#6b4c89,#2a1d3b);border-color:#c4a0ef;box-shadow:0 0 28px rgba(172,113,238,.25)}
+.choice.correct-hit{animation:correctHit .65s ease;background:linear-gradient(180deg,#806526,#3f3014)!important;border-color:#f8d77b!important;box-shadow:0 0 38px rgba(255,211,92,.55),0 14px 24px rgba(0,0,0,.34)!important}
+.choice.wrong-hit{animation:wrongHit .48s ease;background:linear-gradient(180deg,#80382f,#351718)!important;border-color:#e78d7f!important}
+@keyframes correctHit{45%{transform:translateY(-12px) scale(1.06);filter:brightness(1.35)}}
+@keyframes wrongHit{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+#bridge1,#bridge3{opacity:0;transform:scale(.86) translateY(35px);transition:.6s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 18px 25px rgba(0,0,0,.4))}
+#bridge1.show,#bridge3.show{opacity:1;transform:scale(1) translateY(0)}
+.door{transition:.55s;filter:drop-shadow(0 20px 25px rgba(0,0,0,.4))}
+.door.open{opacity:0;transform:scale(.92);filter:blur(3px)}
+.portal-inline{opacity:0;transform:scale(.72);transition:.55s;filter:drop-shadow(0 0 30px rgba(172,108,239,.32))}
+.portal-inline.show{opacity:1;transform:scale(1);animation:portalPulse 1.25s infinite alternate}
+@keyframes portalPulse{to{filter:drop-shadow(0 0 48px rgba(203,139,255,.58)) brightness(1.08)}}
+.crystal-art{transition:.4s;filter:drop-shadow(0 0 14px rgba(86,148,220,.25))}
+.crystal-art.charged{filter:drop-shadow(0 0 36px rgba(255,210,89,.64)) brightness(1.25);transform:translateY(-7px)}
+.magic-step{position:absolute;z-index:10;width:135px;height:32px;border-radius:50%;opacity:0;transform:translateY(30px) scale(.6);
+ background:radial-gradient(ellipse,rgba(255,225,120,.9),rgba(187,121,238,.45) 48%,transparent 70%);
+ border:1px solid rgba(255,229,148,.5);box-shadow:0 0 26px rgba(255,207,92,.32);transition:.45s}
+.magic-step.show{opacity:1;transform:translateY(0) scale(1)}
+.magic-step.show:nth-of-type(2){transition-delay:.1s}.magic-step.show:nth-of-type(3){transition-delay:.2s}
+.section-label{position:absolute;z-index:8;color:rgba(255,231,180,.38);font:800 12px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.22em}
+
+#hud{position:absolute;z-index:100;left:16px;right:16px;top:14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;pointer-events:none}
+#hud>*{pointer-events:auto}
+.brand{padding:11px 15px;border-radius:999px;background:rgba(5,11,18,.78);border:1px solid rgba(247,217,143,.42);backdrop-filter:blur(10px);box-shadow:0 10px 28px rgba(0,0,0,.3);color:#ffe2a2;font-weight:700;font-size:18px}
+.statusbar{justify-self:center;width:min(700px,58vw);padding:9px 14px;border-radius:999px;background:rgba(5,11,18,.78);border:1px solid rgba(247,217,143,.28);backdrop-filter:blur(10px);display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.hearts{color:#ef6a62;font-size:20px;letter-spacing:2px;text-shadow:0 0 10px rgba(255,75,75,.25);white-space:nowrap}
+.progress-track{height:10px;border-radius:999px;overflow:hidden;background:rgba(0,0,0,.36);border:1px solid rgba(247,217,143,.16)}
+.progress-track>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#d9873f,#ffe19a);transition:.45s}
+.score{font:800 11px system-ui,sans-serif;color:#ffe2a0;white-space:nowrap}
 .tools{display:flex;gap:7px}
-.tool{padding:11px 14px;font:800 10px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.08em;transition:.2s}
+.tool{padding:10px 13px;border-radius:999px;border:1px solid rgba(247,217,143,.34);background:rgba(5,11,18,.8);color:#ffe0a0;font:800 10px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.08em;transition:.2s}
 .tool:hover{transform:translateY(-2px);filter:brightness(1.08)}
-.tool.off{opacity:.48}
-.tool.danger{color:#ffd3c6;border-color:rgba(255,141,119,.35)}
-.tool.help{width:42px;padding:0;font-size:15px}
+.tool.off{opacity:.47}
 
-.quest{
-  position:absolute;z-index:25;left:20px;top:94px;width:365px;padding:19px;border-radius:23px;
-  background:linear-gradient(145deg,rgba(7,14,22,.88),rgba(31,14,19,.82));
-  border:1px solid rgba(246,215,141,.4);box-shadow:0 24px 65px rgba(0,0,0,.42);backdrop-filter:blur(12px)
-}
-.kicker{font:800 9px system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#eec878}
-.quest h1{margin:8px 0 4px;color:#ffe0a0;font-size:31px}
-.quest .mission{font:13px/1.5 system-ui,sans-serif;color:#ded3c1;margin:0}
-.sentence{
-  margin-top:13px;padding:12px;border-radius:15px;background:rgba(0,0,0,.22);
-  border:1px dashed rgba(246,215,141,.22);display:flex;gap:6px;flex-wrap:wrap;min-height:61px
-}
-.sentence span{padding:7px 9px;border-radius:9px;background:rgba(66,87,53,.58);color:#efffe8;font:700 11px system-ui,sans-serif}
-.sentence span.blank{background:rgba(91,55,37,.44);color:#e0c9a7}
-.mission-meta{display:flex;gap:8px;margin-top:11px}
-.meta{flex:1;padding:9px 7px;border-radius:13px;background:rgba(0,0,0,.17);border:1px solid rgba(246,215,141,.13);text-align:center}
-.meta strong{display:block;color:#ffe1a0;font-size:23px}.meta small{font:8px system-ui,sans-serif;color:#cfc3b0;text-transform:uppercase;letter-spacing:.09em}
-.feedback{
-  position:absolute;z-index:28;left:50%;bottom:22px;transform:translateX(-50%);
-  width:min(720px,72vw);padding:12px 18px;border-radius:999px;text-align:center;
-  background:rgba(5,11,18,.82);border:1px solid rgba(246,215,141,.25);backdrop-filter:blur(9px);
-  font:700 12px system-ui,sans-serif;color:#efe2ce;box-shadow:0 10px 28px rgba(0,0,0,.28)
-}
-.feedback.good{color:#e4ffda;border-color:rgba(159,237,148,.4);background:rgba(22,72,39,.76)}
-.feedback.bad{color:#ffd4c8;border-color:rgba(255,152,129,.37);background:rgba(92,30,25,.78)}
-.portal-alert{
-  position:absolute;z-index:29;right:22px;bottom:92px;width:260px;padding:14px 15px;border-radius:19px;
-  background:linear-gradient(145deg,rgba(44,26,69,.91),rgba(11,10,20,.92));
-  border:1px solid rgba(220,190,255,.58);box-shadow:0 0 32px rgba(167,105,232,.3),0 15px 35px rgba(0,0,0,.3);
-  font:700 12px/1.45 system-ui,sans-serif;color:#f0ddff;opacity:0;transform:translateY(15px);transition:.3s;pointer-events:none
-}
-.portal-alert.show{opacity:1;transform:translateY(0)}
-.portal-alert strong{display:block;color:#ffe4a9;font-size:16px;margin-bottom:3px}
-.arrow{font-size:30px;display:inline-block;margin-right:8px;vertical-align:middle;color:#e3c2ff}
+#questCard{position:absolute;z-index:95;left:50%;top:82px;transform:translateX(-50%);width:min(680px,70vw);padding:14px 20px 15px;border-radius:22px;background:linear-gradient(145deg,rgba(58,21,25,.9),rgba(10,12,19,.86));border:1px solid rgba(247,217,143,.45);box-shadow:0 16px 40px rgba(0,0,0,.38);backdrop-filter:blur(9px);text-align:center;transition:.3s}
+#questCard.done{opacity:.22;transform:translateX(-50%) translateY(-6px)}
+#questCard .kicker{font:800 9px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.2em;color:#edc778}
+#questCard h1{margin:5px 0 4px;font-size:27px;color:#ffe2a2}
+#questCard p{margin:0;font:12px/1.45 system-ui,sans-serif;color:#ddd2c1}
+.blank{display:inline-block;min-width:115px;border-bottom:2px solid #f1c97a;color:#ffe8ae;padding:0 5px}
 
-.mobile{
-  position:absolute;z-index:32;right:15px;bottom:16px;display:none;gap:5px;align-items:flex-end
-}
-.mobile button{
-  width:56px;height:49px;border-radius:14px;border:1px solid rgba(246,215,141,.3);
-  background:rgba(5,11,18,.82);color:#ffe2a1;font-size:21px
-}
+#feedback{position:absolute;z-index:110;left:50%;bottom:18px;transform:translateX(-50%);min-width:420px;max-width:78vw;padding:11px 18px;border-radius:999px;text-align:center;background:rgba(5,11,18,.82);border:1px solid rgba(247,217,143,.25);font:700 12px system-ui,sans-serif;color:#eee2cf;backdrop-filter:blur(9px);box-shadow:0 10px 28px rgba(0,0,0,.3);transition:.25s}
+#feedback.good{background:rgba(25,78,43,.82);border-color:rgba(161,238,153,.42);color:#e3ffdc}
+#feedback.bad{background:rgba(91,31,26,.84);border-color:rgba(255,153,130,.4);color:#ffd8cd}
 
-.overlay{
-  position:absolute;inset:0;z-index:60;display:grid;place-items:center;
-  background:rgba(2,5,9,.58);backdrop-filter:blur(7px)
-}
+.checkpoint{position:absolute;z-index:9;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle,#fff3c1 0 10%,#ffc954 17%,rgba(255,189,59,.3) 43%,transparent 70%);box-shadow:0 0 25px #ffc859;opacity:.75}
+.spark{position:absolute;z-index:120;width:7px;height:7px;border-radius:50%;background:#ffe494;box-shadow:0 0 12px #ffd15e;pointer-events:none;animation:spark .85s forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.15);opacity:0}}
+.butterfly{position:absolute;z-index:60;font-size:18px;color:#ffe79e;text-shadow:0 0 12px #ffc85b;pointer-events:none;animation:fly 1.4s forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(30deg);opacity:0}}
+
+.overlay{position:absolute;inset:0;z-index:200;display:grid;place-items:center;background:rgba(2,5,9,.61);backdrop-filter:blur(8px)}
 .overlay.hidden{display:none}
-.card{
-  width:min(760px,91vw);padding:32px;border-radius:29px;text-align:center;
-  background:linear-gradient(145deg,rgba(7,14,22,.96),rgba(40,15,20,.93));
-  border:1px solid rgba(246,215,141,.52);box-shadow:0 30px 100px rgba(0,0,0,.58)
-}
-.card h2{margin:10px 0;color:#ffe0a0;font-size:46px}
-.card p,.card li{font:14px/1.65 system-ui,sans-serif;color:#e0d5c3}
-.card ul{display:inline-block;text-align:left}
-.start{
-  margin-top:18px;padding:14px 26px;border-radius:999px;border:1px solid #e6a85a;
-  color:#fff4d9;background:linear-gradient(180deg,#c9503d,#741d1d);
-  font:800 12px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.1em
-}
-.recap{
-  margin:16px auto 0;max-width:620px;text-align:left;padding:15px 17px;border-radius:17px;
-  background:rgba(0,0,0,.2);border:1px dashed rgba(246,215,141,.2);font:13px/1.6 system-ui,sans-serif;color:#e4d8c5
-}
-.recap b{color:#ffe19f}
+.modal{width:min(720px,91vw);padding:30px;border-radius:28px;text-align:center;background:linear-gradient(145deg,rgba(7,14,22,.97),rgba(40,15,20,.95));border:1px solid rgba(247,217,143,.5);box-shadow:0 30px 100px rgba(0,0,0,.58)}
+.modal .kicker{font:800 10px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.19em;color:#efca79}
+.modal h2{font-size:44px;color:#ffe1a0;margin:8px 0 10px}
+.modal p,.modal li{font:14px/1.65 system-ui,sans-serif;color:#e1d5c2}
+.modal ul{display:inline-block;text-align:left;margin:8px auto}
+.primary{padding:13px 24px;border-radius:999px;border:1px solid #e7aa5b;background:linear-gradient(180deg,#c8513e,#751f1e);color:#fff3d8;font:800 11px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.1em}
+.stars-row{font-size:38px;letter-spacing:7px;color:#ffd66f;text-shadow:0 0 17px rgba(255,207,91,.35);margin:10px}
 
-@media(max-width:920px){
-  .quest{left:12px;top:90px;width:330px}.progress{width:auto}.progress small{display:none}.mobile{display:flex}.feedback{bottom:78px;width:calc(100% - 24px)}
-  .portal-alert{right:12px;bottom:140px}
-}
-@media(max-width:620px){
-  .brand{display:none}.topbar{grid-template-columns:1fr auto}.progress{justify-self:stretch;width:100%}
-  .quest{left:9px;right:9px;top:88px;width:auto;padding:13px}.quest h1{font-size:24px}.quest .mission{font-size:11px}
-  .mission-meta{display:none}.sentence{min-height:45px}.sentence span{font-size:9px;padding:5px 7px}
-  .tool{padding:10px 11px}.portal-alert{width:210px;font-size:10px}
-}
+.mobile{display:none;position:absolute;z-index:140;right:14px;bottom:14px;gap:6px}
+.mobile button{width:55px;height:48px;border-radius:14px;border:1px solid rgba(247,217,143,.34);background:rgba(5,11,18,.82);color:#ffe0a0;font-size:20px}
 
-
+@media(max-width:900px){
+ .brand{font-size:15px}.statusbar{width:auto}.score{display:none}#questCard{width:88vw;top:76px}.tools .tool:nth-child(2){display:none}
+ .mobile{display:flex}#feedback{bottom:74px;min-width:0;width:calc(100% - 24px)}
+}
 </style>
 </head>
 <body>
 <div id="app">
-  <div id="bg"></div><div id="atmos"></div><canvas id="canvas"></canvas>
+ <div id="backdrop"></div>
+ <div id="viewport"><div id="world">
+   <div id="mistLayer"></div>
 
-  <div class="topbar">
-    <div class="brand">✦ Enchanted Grove</div>
-    <div class="progress">
-      <strong>Fairy Run</strong>
-      <div class="track"><div id="progressFill"></div></div>
-      <small id="progressText">Mission 1 / 12</small>
-    </div>
-    <div class="tools">
-      <button class="tool help" id="helpBtn" title="How to play">?</button>
-      <button class="tool" id="soundBtn">Sound On</button>
-      <button class="tool danger" id="restartBtn">Restart</button>
-    </div>
+   <!-- Section 1 -->
+   <div class="section-label" style="left:80px;top:590px">01 · Bridge of Habits</div>
+   <img class="asset decor" src="assets/platform_start.png" style="left:-20px;top:520px;width:520px">
+   <div class="water-zone" style="left:450px;top:720px;width:560px"></div>
+   <div class="choice stone" data-challenge="0" data-value="goes" style="left:535px;top:620px">goes</div>
+   <div class="choice stone" data-challenge="0" data-value="go" style="left:700px;top:560px">go</div>
+   <div class="choice stone" data-challenge="0" data-value="is going" style="left:865px;top:620px">is going</div>
+   <img id="bridge1" class="asset" src="assets/bridge.png" style="left:430px;top:505px;width:650px;z-index:12">
+   <img class="asset decor" src="assets/platform_long.png" style="left:1000px;top:555px;width:570px">
+
+   <!-- Section 2 -->
+   <div class="section-label" style="left:1370px;top:590px">02 · Lantern Gate</div>
+   <img class="asset decor" src="assets/platform_root.png" style="left:1240px;top:500px;width:520px">
+   <img class="asset decor" src="assets/platform_glow.png" style="left:1580px;top:570px;width:430px">
+   <img class="asset decor" src="assets/platform_long.png" style="left:1900px;top:565px;width:560px">
+   <div class="choice lantern" data-challenge="1" data-value="looks for" style="left:1510px;top:465px">looks for</div>
+   <div class="choice lantern" data-challenge="1" data-value="is looking for" style="left:1735px;top:385px">is looking for</div>
+   <div class="choice lantern" data-challenge="1" data-value="look for" style="left:1960px;top:465px">look for</div>
+   <img id="door2" class="asset door" src="assets/moon_door.png" style="left:2220px;top:390px;width:270px;z-index:20">
+   <img id="portal2" class="asset portal-inline" src="assets/moon_portal.png" style="left:2220px;top:390px;width:270px;z-index:19">
+
+   <!-- Section 3 -->
+   <div class="section-label" style="left:2530px;top:590px">03 · Crystal Crossing</div>
+   <img class="asset decor" src="assets/platform_start.png" style="left:2430px;top:535px;width:510px">
+   <img class="asset decor" src="assets/platform_long.png" style="left:2850px;top:565px;width:520px">
+   <div class="water-zone" style="left:3260px;top:720px;width:360px"></div>
+   <div class="choice crystal-choice" data-challenge="2" data-value="visited" style="left:2560px;top:598px">visited</div>
+   <div class="choice crystal-choice" data-challenge="2" data-value="visit" style="left:2750px;top:548px">visit</div>
+   <div class="choice crystal-choice" data-challenge="2" data-value="have visited" style="left:2940px;top:598px">have visited</div>
+   <img id="crystalA" class="asset crystal-art" src="assets/crystal_blue.png" style="left:2580px;top:425px;width:120px;z-index:15">
+   <img id="crystalB" class="asset crystal-art" src="assets/crystal_gold.png" style="left:2780px;top:375px;width:120px;z-index:15">
+   <img id="crystalC" class="asset crystal-art" src="assets/crystal_blue.png" style="left:2970px;top:425px;width:120px;z-index:15">
+   <img id="bridge3" class="asset" src="assets/rope_bridge.png" style="left:3190px;top:545px;width:520px;z-index:12">
+   <img class="asset decor" src="assets/platform_root.png" style="left:3540px;top:510px;width:500px">
+
+   <!-- Section 4 -->
+   <div class="section-label" style="left:3650px;top:590px">04 · Rune Door</div>
+   <img class="asset decor" src="assets/platform_long.png" style="left:3550px;top:565px;width:600px">
+   <div class="choice rune-pad" data-challenge="3" data-value="should taking" style="left:3740px;top:680px">should taking</div>
+   <div class="choice rune-pad" data-challenge="3" data-value="should take" style="left:3920px;top:680px">should take</div>
+   <div class="choice rune-pad" data-challenge="3" data-value="should took" style="left:4100px;top:680px">should took</div>
+   <img id="door4" class="asset door" src="assets/red_door.png" style="left:4300px;top:430px;width:235px;z-index:20">
+   <img id="portal4" class="asset portal-inline" src="assets/moon_portal.png" style="left:4300px;top:430px;width:235px;z-index:19">
+
+   <!-- Section 5 -->
+   <div class="section-label" style="left:4550px;top:590px">05 · Moon Gate</div>
+   <img class="asset decor" src="assets/platform_start.png" style="left:4460px;top:525px;width:520px">
+   <img class="asset decor" src="assets/platform_long.png" style="left:4870px;top:565px;width:510px">
+   <div class="choice orb" data-challenge="4" data-value="can catching" style="left:4610px;top:500px">can catching</div>
+   <div class="choice orb" data-challenge="4" data-value="can catch" style="left:4800px;top:410px">can catch</div>
+   <div class="choice orb" data-challenge="4" data-value="will can catch" style="left:4990px;top:500px">will can catch</div>
+   <img id="finalPortal" class="asset portal-inline" src="assets/final_portal.png" style="left:5180px;top:355px;width:285px;z-index:19">
+
+   <div id="player"><img src="assets/stand.png" alt="fairy"></div>
+ </div></div>
+
+ <div id="hud">
+  <div class="brand">✦ Fairy Forest Quest</div>
+  <div class="statusbar"><div id="hearts" class="hearts">♥ ♥ ♥</div><div class="progress-track"><i id="progressFill"></i></div><div class="score">✦ <span id="score">0</span> · <span id="progressText">0 / 5</span></div></div>
+  <div class="tools"><button class="tool" id="helpBtn">Help</button><button class="tool" id="sfxBtn">SFX On</button><button class="tool" id="restartBtn">Restart</button></div>
+ </div>
+
+ <div id="questCard"><div class="kicker" id="questKicker">Bridge challenge</div><h1 id="questText">My brother <span class="blank">___</span> to school every day.</h1><p id="questHint">Choose deliberately: jump and land on a stone.</p></div>
+ <div id="feedback">Move with A/D or ←/→. Jump with W / ↑ / Space.</div>
+ <div class="mobile"><button data-key="left">◀</button><button data-key="jump">▲</button><button data-key="right">▶</button></div>
+
+ <div class="overlay" id="intro">
+  <div class="modal"><div class="kicker">Moon Bridge Chapter · polished prototype</div><h2>Fairy Forest Quest</h2>
+   <p>One continuous forest adventure with five different English obstacles. The answers are part of the world: they build bridges, light portals, charge crystals and open doors.</p>
+   <ul><li><b>A/D or ←/→</b> — move</li><li><b>W / ↑ / Space</b> — jump</li><li>Wrong answers cost a heart only when you deliberately land on or hit them.</li><li>No music or synthetic speech — only short game sound effects.</li></ul>
+   <button class="primary" id="startBtn">Enter the Grove</button>
   </div>
+ </div>
 
-  <aside class="quest">
-    <div class="kicker">Current English challenge</div>
-    <h1 id="focusTitle">Present Simple</h1>
-    <p class="mission" id="missionText">Collect the missing chunks in the correct order.</p>
-    <div class="sentence" id="sentenceBox"></div>
-    <div class="mission-meta">
-      <div class="meta"><strong id="runeCount">0</strong><small>correct chunks</small></div>
-      <div class="meta"><strong id="heartCount">4</strong><small>hearts</small></div>
-      <div class="meta"><strong id="scoreCount">0</strong><small>magic</small></div>
-    </div>
-  </aside>
-  <div class="portal-alert" id="portalAlert"><span class="arrow">➜</span><strong>Portal opened!</strong>It appeared just ahead. Run into the purple gate.</div>
-  <div class="feedback" id="feedback">Move: A/D or ←/→ · Jump: W / ↑ / Space · Choose: hit a word-block from below</div>
-
-  <div class="mobile">
-    <button data-key="left">◀</button>
-    <button data-key="jump">▲</button>
-    <button data-key="right">▶</button>
+ <div class="overlay hidden" id="helpOverlay">
+  <div class="modal"><div class="kicker">Controls & mechanics</div><h2>How to Play</h2>
+   <p>Each obstacle has one English blank and three choices. The selection method changes with the world:</p>
+   <ul><li>Bridge stones — <b>land from above</b>.</li><li>Lantern gate — <b>jump and hit a lantern from below</b>.</li><li>Crystals — <b>land on the crystal pedestal</b>.</li><li>Rune door — <b>jump and land on a floor rune</b>.</li><li>Moon Gate — <b>jump into the chosen magic orb</b>.</li></ul>
+   <button class="primary" id="closeHelp">Back to Adventure</button>
   </div>
+ </div>
 
-  <div class="overlay" id="intro">
-    <div class="card">
-      <div class="kicker">Challenge Edition</div>
-      <h2>Fairy Run V2</h2>
-      <p>Each mission now has <b>exactly one missing chunk</b>. Choose it like a real platformer: jump and hit the correct word-block from below.</p>
-      <ul>
-        <li>Each mission has exactly <b>one blank</b> and four possible word-blocks.</li>
-        <li>Several distractor runes are placed on the route.</li>
-        <li>Run freely under the blocks: touching their sides does nothing.</li><li>To choose an answer, <b>jump and hit a block from below</b>.</li><li>A wrong block costs a heart only when you deliberately hit it from below.</li>
-        <li>The portal now appears <b>close to the fairy</b> as soon as the sentence is complete.</li>
-        <li>The fairy is much larger and easier to see.</li>
-      </ul><br>
-      <button class="start" id="startBtn">Start Challenge</button>
-    </div>
+ <div class="overlay hidden" id="completeOverlay">
+  <div class="modal"><div class="kicker">Chapter complete</div><h2>The Moon Gate Awakens</h2>
+   <div class="stars-row">★ ★ ★ ★ ★</div>
+   <p id="finalStats">Five obstacles restored.</p>
+   <button class="primary" id="againBtn">Play Again</button>
   </div>
-
-  <div class="overlay hidden" id="missionComplete">
-    <div class="card">
-      <div class="kicker">Mission complete</div>
-      <h2 id="missionCompleteTitle">Sentence restored</h2>
-      <div class="recap" id="missionRecap"></div>
-      <button class="start" id="continueBtn">Continue</button>
-    </div>
-  </div>
-
-  <div class="overlay hidden" id="gameComplete">
-    <div class="card">
-      <div class="kicker">All 12 missions complete</div>
-      <h2>Firefly Ember Restored</h2>
-      <p>You finished a full run of the forest using English grammar and chunks to open every gate.</p>
-      <div class="recap" id="finalRecap"></div>
-      <button class="start" id="againBtn">Play Again</button>
-    </div>
-  </div>
-
-  <div class="overlay hidden" id="helpOverlay">
-    <div class="card">
-      <div class="kicker">Controls</div>
-      <h2>How to Play</h2>
-      <ul>
-        <li><b>A / D</b> or <b>← / →</b> — move</li>
-        <li><b>W / ↑ / Space</b> — jump</li>
-        <li>Run under the answer blocks. To choose one, jump and hit it from below.</li>
-        <li>The blocks do not block your movement. The choice is registered only by a jump-hit from below.</li>
-        <li>Wrong runes cost one heart.</li>
-        <li>After the correct jump-hit, a large purple portal spawns nearby.</li>
-      </ul><br>
-      <button class="start" id="closeHelpBtn">Back to Game</button>
-    </div>
-  </div>
+ </div>
 </div>
 
 <script>
 (()=>{
 "use strict";
-const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
-const fairyImg=new Image();fairyImg.src="assets/fairy.webp";
-
-const missions=[
- {focus:"Present Simple",template:["My brother","___","to school every day."],answer:"usually goes",choices:["usually goes","goes usually","is going","usually go"],tip:"With he/she/it, use the -s form. Frequency adverbs normally come before the main verb."},
- {focus:"Present Simple Negative",template:["We","___","football outside when it rains."],answer:"don't play",choices:["don't play","aren't playing","don't plays","not play"],tip:"Present Simple negative: don't + base verb."},
- {focus:"Present Simple Question",template:["___","your sister enjoy fantasy books?"],answer:"Does",choices:["Does","Do","Is","Did"],tip:"Third-person Present Simple question: Does + subject + base verb."},
- {focus:"Present Continuous",template:["She","___","her keys right now."],answer:"is looking for",choices:["is looking for","looks for","look for","is look for"],tip:"Right now signals Present Continuous: is + verb-ing."},
- {focus:"Present Continuous Negative",template:["They","___","TV because they are doing homework."],answer:"aren't watching",choices:["aren't watching","don't watch","aren't watch","not watching"],tip:"For an action happening now, use aren't + verb-ing."},
- {focus:"Wh- Question",template:["What","___","after school today?"],answer:"are you doing",choices:["are you doing","do you do","you are doing","are you do"],tip:"Present Continuous question: What are you doing...?"},
- {focus:"Past Simple",template:["Yesterday we","___","an old castle near the river."],answer:"visited",choices:["visited","visit","were visit","have visited"],tip:"Yesterday signals Past Simple."},
- {focus:"Past Simple Negative",template:["He","___","the message because his phone was off."],answer:"didn't see",choices:["didn't see","didn't saw","doesn't see","not saw"],tip:"After didn't, use the base verb: see."},
- {focus:"Modal Verb",template:["You","___","an umbrella because it might rain later."],answer:"should take",choices:["should take","should taking","must to take","should took"],tip:"Should is followed by the base verb."},
- {focus:"Comparatives",template:["This puzzle is","___","the last one."],answer:"much more difficult than",choices:["much more difficult than","more much difficult than","much difficulter than","most difficult then"],tip:"Use much more + adjective + than."},
- {focus:"Possibility",template:["If we hurry, we","___","the next train."],answer:"can catch",choices:["can catch","can catching","could to catch","will can catch"],tip:"Can is followed by the base verb."},
- {focus:"Present Perfect",template:["Why","___","your homework yet?"],answer:"haven't you finished",choices:["haven't you finished","didn't you finished","aren't you finish","haven't you finish"],tip:"Present Perfect question: haven't + subject + past participle."}
-];
-
-let W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),last=0;
-let running=false,missionIndex=0,score=0,totalWrong=0,soundOn=true;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const world=$("#world"), playerEl=$("#player"), playerImg=$("#player img");
+const VW=5480,VH=900;
+let scale=1,camera=0,last=performance.now(),running=false,sfxOn=true,score=0,hearts=3,current=0,wrongChoices=0;
 const keys={left:false,right:false,jump:false};
-let player,platforms,runes,particles,portal,cameraX,stageWidth,portalSpawned=false,autoFocus=0;
-
-const sounds={ok:"assets/correct.wav",bad:"assets/wrong.wav",portal:"assets/portal.wav",click:"assets/click.wav",reward:"assets/reward.wav"};
-function sound(k,g=.7){if(!soundOn)return;const a=new Audio(sounds[k]);a.volume=g;a.play().catch(()=>{})}
-function resize(){W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0)}
-addEventListener("resize",resize);resize();
-
-const ground=()=>H*.80;
-function stageLen(){return Math.max(W*1.65,2050)}
-function freeSpots(){
- const gy=ground();
- // Blocks are intentionally suspended above the running path.
- return [
-   {x:500,y:gy-220},
-   {x:820,y:gy-285},
-   {x:1160,y:gy-215},
-   {x:1480,y:gy-285}
- ].filter(p=>p.x<stageWidth-160)
-}function initMission(){
- const m=missions[missionIndex];
- stageWidth=stageLen();cameraX=0;portalSpawned=false;autoFocus=0;
- player={x:120,y:ground()-130,w:72,h:122,drawW:245,drawH:365,vx:0,vy:0,onGround:false,hearts:4,answered:false,inv:0,dir:1};
- particles=[];
- platforms=[
-   {x:0,y:ground(),w:stageWidth,h:160},
-   {x:360,y:ground()-115,w:215,h:24},
-   {x:660,y:ground()-220,w:210,h:24},
-   {x:965,y:ground()-105,w:230,h:24},
-   {x:1275,y:ground()-210,w:220,h:24},
-   {x:1535,y:ground()-120,w:205,h:24},
-   {x:1760,y:ground()-245,w:205,h:24},
+const done=[false,false,false,false,false];
+let checkpointX=120, player={x:120,y:588,w:62,h:112,vx:0,vy:0,onGround:false,facing:1,inv:0};
+let walkFrame=0,walkClock=0;
+const sounds={ok:"assets/correct.wav",bad:"assets/wrong.wav",portal:"assets/portal.wav",reward:"assets/reward.wav",click:"assets/click.wav"};
+const challenges=[
+ {kicker:"Bridge challenge",text:'My brother <span class="blank">___</span> to school every day.',hint:"Choose deliberately: jump and land on a stone.",answer:"goes",method:"land",checkpoint:120},
+ {kicker:"Lantern gate",text:'She <span class="blank">___</span> her keys right now.',hint:"Jump and strike a lantern from below.",answer:"is looking for",method:"below",checkpoint:1320},
+ {kicker:"Crystal crossing",text:'Yesterday we <span class="blank">___</span> an old castle.',hint:"Land on the crystal pedestal you choose.",answer:"visited",method:"land",checkpoint:2480},
+ {kicker:"Rune door",text:'You <span class="blank">___</span> an umbrella because it might rain.',hint:"Jump and land on one floor rune.",answer:"should take",method:"land",checkpoint:3600},
+ {kicker:"Moon Gate",text:'If we hurry, we <span class="blank">___</span> the next train.',hint:"Jump into the magic orb you choose.",answer:"orb",checkpoint:4490}
+];
+function shuffleArray(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function shuffleChoices(){
+ const groups=[
+   {sel:'[data-challenge="0"]',slots:[["535px","620px"],["700px","560px"],["865px","620px"]]},
+   {sel:'[data-challenge="1"]',slots:[["1510px","465px"],["1735px","385px"],["1960px","465px"]]},
+   {sel:'[data-challenge="2"]',slots:[["2560px","598px"],["2750px","548px"],["2940px","598px"]]},
+   {sel:'[data-challenge="3"]',slots:[["3740px","680px"],["3920px","680px"],["4100px","680px"]]},
+   {sel:'[data-challenge="4"]',slots:[["4610px","500px"],["4800px","410px"],["4990px","500px"]]}
  ];
- const spots=freeSpots();
- const choices=shuffle([...m.choices]);
- runes=choices.map((text,i)=>({
-   x:spots[i].x,y:spots[i].y,w:155,h:62,text,
-   taken:false,hit:false,bounce:0
- }));
- portal={x:stageWidth-250,y:ground()-210,w:135,h:210,open:false};
- updateMissionUI();
- setFeedback("Run under the blocks. Jump and hit the correct answer from below.","");
-}
-function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function setFeedback(text,type){const f=document.getElementById("feedback");f.className="feedback"+(type?" "+type:"");f.textContent=text}
-function updateMissionUI(){
- const m=missions[missionIndex],box=document.getElementById("sentenceBox");box.innerHTML="";
- m.template.forEach(part=>{
-   let s=document.createElement("span");
-   if(part==="___"){
-     s.textContent=player.answered ? m.answer : "?";
-     if(!player.answered)s.classList.add("blank");
-   } else s.textContent=part;
-   box.appendChild(s);
- });
- document.getElementById("focusTitle").textContent=m.focus;
- document.getElementById("missionText").textContent="One blank. Jump and hit the correct block from below.";
- document.getElementById("runeCount").textContent=player.answered?1:0;
- document.getElementById("heartCount").textContent=player.hearts;
- document.getElementById("scoreCount").textContent=score;
- document.getElementById("progressText").textContent=`Mission ${missionIndex+1} / ${missions.length}`;
- document.getElementById("progressFill").style.width=`${(missionIndex/missions.length)*100}%`;
-}function overlap(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}
-function burst(x,y,color,n=18){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*190,vy:(Math.random()-.75)*190,life:.7+Math.random()*.5,size:2+Math.random()*4,color})}
-function hurt(msg){
- if(player.inv>0)return;
- player.hearts--;player.inv=1.1;totalWrong++;sound("bad",.7);burst(player.x+player.w/2,player.y+player.h/2,"#ff8d76",20);setFeedback(msg,"bad");
- if(player.hearts<=0){setTimeout(()=>{score=Math.max(0,score-25);initMission()},700)}
- updateMissionUI()
-}
-
-function hitAnswerBlock(r){
- if(player.answered || r.hit)return;
- const m=missions[missionIndex];
- r.hit=true;r.bounce=1;
- if(r.text===m.answer){
-   player.answered=true;score+=50;sound("ok",.72);
-   burst(r.x+r.w/2,r.y+r.h/2,"#ffe08a",30);
-   updateMissionUI();
-   spawnPortalNearby();
-   setFeedback(`Correct: “${r.text}”. +50 magic! The portal is open.`,"good");
- }else{
-   player.hearts--;totalWrong++;sound("bad",.68);
-   burst(r.x+r.w/2,r.y+r.h/2,"#ff8d76",20);
-   setFeedback(`“${r.text}” is not correct. ${m.tip}`,"bad");
-   if(player.hearts<=0){
-     setTimeout(()=>{score=Math.max(0,score-20);initMission()},700);
-   } else {
-     // Let the same wrong block be hit again later, but only after a short visual bounce.
-     setTimeout(()=>{r.hit=false},450);
-   }
-   updateMissionUI();
+ for(const g of groups){
+   const els=$$(g.sel),slots=shuffleArray([...g.slots]);
+   els.forEach((el,i)=>{el.style.left=slots[i][0];el.style.top=slots[i][1]});
  }
 }
-function spawnPortalNearby(){
- portal.open=true;portalSpawned=true;
- const desired=player.x+Math.min(360,W*.30);
- portal.x=Math.min(stageWidth-180,Math.max(player.x+220,desired));
- portal.y=ground()-230;autoFocus=1.2;
- sound("portal",.8);document.getElementById("portalAlert").classList.add("show");
- setTimeout(()=>document.getElementById("portalAlert").classList.remove("show"),3600);
-}
-function finishMission(){
- running=false;sound("portal",.75);
- const m=missions[missionIndex];
- document.getElementById("missionCompleteTitle").textContent=`Mission ${missionIndex+1} complete`;
- // safer custom recap
- document.getElementById("missionRecap").innerHTML=`<b>Correct sentence:</b><br>${buildFullSentence(m)}<br><br><b>Why:</b> ${m.tip}`;
- document.getElementById("missionComplete").classList.remove("hidden");
-}
-function buildFullSentence(m){
- let ai=0;return m.template.map(x=>x==="___"?m.answers[ai++]:x).join(" ").replace(/\s+([?.!,])/g,"$1")
-}
-function nextMission(){
- document.getElementById("missionComplete").classList.add("hidden");missionIndex++;
- if(missionIndex>=missions.length){completeGame();return}
- running=true;initMission()
-}
-function completeGame(){
- sound("reward",.9);
- document.getElementById("progressFill").style.width="100%";
- document.getElementById("finalRecap").innerHTML=`<b>Magic score:</b> ${score}<br><b>Wrong runes triggered:</b> ${totalWrong}<br><b>Missions:</b> ${missions.length}`;
- document.getElementById("gameComplete").classList.remove("hidden")
-}
 
-function update(dt){
+function resize(){scale=innerHeight/VH;const viewW=innerWidth/scale;world.style.height=VH+"px";updateCamera(true)}
+addEventListener("resize",resize);resize();
+
+function play(name,vol=.65){if(!sfxOn)return;const a=new Audio(sounds[name]);a.volume=vol;a.play().catch(()=>{})}
+function setFeedback(text,type=""){const f=$("#feedback");f.textContent=text;f.className=type}
+function updateHUD(){
+ $("#score").textContent=score;$("#progressText").textContent=`${done.filter(Boolean).length} / 5`;
+ $("#progressFill").style.width=`${done.filter(Boolean).length/5*100}%`;
+ $("#hearts").textContent=Array.from({length:3},(_,i)=>i<hearts?"♥":"♡").join(" ");
+}
+function setQuest(i){
+ current=i;const q=challenges[i];$("#questKicker").textContent=q.kicker;$("#questText").innerHTML=q.text;$("#questHint").textContent=q.hint;$("#questCard").classList.toggle("done",done[i]);
+}
+function sectionForX(x){
+ if(x<1200)return 0;if(x<2400)return 1;if(x<3500)return 2;if(x<4450)return 3;return 4
+}
+function updateCamera(immediate=false){
+ const viewW=innerWidth/scale;
+ const target=Math.max(0,Math.min(VW-viewW,player.x-viewW*.38));
+ camera=immediate?target:camera+(target-camera)*.09;
+ world.style.transform=`translate(${-camera*scale}px,0) scale(${scale})`;
+ const bgShift=(camera/(VW-viewW||1))*18;
+ $("#backdrop").style.backgroundPosition=`${50-bgShift}% center`;
+}
+function playerVisual(){
+ const drawW=158,drawH=250;
+ playerEl.style.left=(player.x-(drawW-player.w)/2)+"px";
+ playerEl.style.top=(player.y-(drawH-player.h))+"px";
+ playerEl.style.transform=`scaleX(${player.facing})`;
+ playerEl.classList.toggle("invincible",player.inv>0);
+}
+const basePlatforms=[
+ {x:-50,y:700,w:500,h:200},{x:1000,y:700,w:560,h:200},
+ {x:1240,y:700,w:1220,h:200},
+ {x:2430,y:700,w:850,h:200},{x:3540,y:700,w:910,h:200},
+ {x:4460,y:700,w:1020,h:200},
+ // section 2 jump platforms beneath the lanterns
+ {x:1450,y:650,w:210,h:20},{x:1690,y:590,w:210,h:20},{x:1930,y:650,w:210,h:20},
+];
+function platforms(){
+ const p=[...basePlatforms];
+ if(done[0])p.push({x:450,y:585,w:570,h:24});
+ if(done[2])p.push({x:3240,y:646,w:470,h:25});
+ return p
+}
+function walls(){
+ const w=[];
+ if(!done[0])w.push({x:1015,y:0,w:24,h:900});
+ if(!done[1])w.push({x:2225,y:350,w:65,h:380});
+ if(!done[3])w.push({x:4295,y:370,w:70,h:360});
+ return w
+}
+function overlap(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}
+function spawnMagic(x,y,color="#ffe18b"){
+ for(let i=0;i<22;i++){const s=document.createElement("i");s.className="spark";s.style.left=((x-camera)*scale)+"px";s.style.top=(y*scale)+"px";s.style.setProperty("--dx",((Math.random()-.5)*180)+"px");s.style.setProperty("--dy",((Math.random()-.7)*150)+"px");s.style.background=color;document.body.appendChild(s);setTimeout(()=>s.remove(),900)}
+ for(let i=0;i<8;i++){const b=document.createElement("i");b.className="butterfly";b.textContent="✦";b.style.left=((x-camera)*scale)+"px";b.style.top=(y*scale)+"px";b.style.setProperty("--dx",((Math.random()-.5)*220)+"px");b.style.setProperty("--dy",(-60-Math.random()*150)+"px");document.body.appendChild(b);setTimeout(()=>b.remove(),1450)}
+}
+function hurt(choice){
+ if(player.inv>0)return;
+ hearts--;wrongChoices++;player.inv=1.1;choice.classList.remove("wrong-hit");void choice.offsetWidth;choice.classList.add("wrong-hit");play("bad",.62);
+ setFeedback("Not this one. You chose it deliberately, so one heart faded. Try another.","bad");updateHUD();
+ if(hearts<=0)setTimeout(()=>restartChallenge(),650)
+}
+function restartChallenge(){
+ hearts=3;player.x=challenges[current].checkpoint;player.y=588;player.vx=player.vy=0;player.inv=1;
+ $$(".choice").forEach(x=>x.classList.remove("wrong-hit"));
+ setFeedback("Checkpoint restored. The challenge is ready again.");updateHUD()
+}
+function completeChallenge(i,choice){
+ if(done[i])return;
+ done[i]=true;score+=100;hearts=Math.min(3,hearts+1);choice?.classList.add("correct-hit");play("ok",.72);spawnMagic(choice?parseFloat(choice.style.left)+70:player.x,choice?parseFloat(choice.style.top)+30:player.y);
+ if(i===0){$("#bridge1").classList.add("show");setFeedback("Correct — “goes”. The forest builds the bridge for you. +100 magic.","good")}
+ if(i===1){$("#door2").classList.add("open");$("#portal2").classList.add("show");play("portal",.62);setFeedback("Correct — “is looking for”. The Moon Door dissolves into a passage. +100 magic.","good")}
+ if(i===2){$("#crystalA").classList.add("charged");$("#crystalB").classList.add("charged");$("#crystalC").classList.add("charged");$("#bridge3").classList.add("show");setFeedback("Correct — “visited”. The crystals weave a crossing over the water. +100 magic.","good")}
+ if(i===3){$("#door4").classList.add("open");$("#portal4").classList.add("show");play("portal",.62);setFeedback("Correct — “should take”. The rune door opens. +100 magic.","good")}
+ if(i===4){$("#finalPortal").classList.add("show");play("portal",.8);setFeedback("Correct — “can catch”. The Moon Gate is awake. Enter it to finish.","good")}
+ updateHUD();$("#questCard").classList.add("done");
+}
+function choose(choice,mode){
+ const i=+choice.dataset.challenge;if(done[i])return;
+ let value=choice.dataset.value;
+ if(i===4 && value==="can catch")value="orb";
+ if(value===challenges[i].answer)completeChallenge(i,choice);else hurt(choice)
+}
+function choiceRects(){return $$(".choice").map(el=>{const r={x:parseFloat(el.style.left),y:parseFloat(el.style.top),w:el.offsetWidth||parseFloat(getComputedStyle(el).width),h:el.offsetHeight||parseFloat(getComputedStyle(el).height)};return {el,r}})}
+function physics(dt){
  if(!running)return;
  if(player.inv>0)player.inv-=dt;
- let ax=(keys.right?1:0)-(keys.left?1:0);
- player.vx+=ax*1100*dt;player.vx*=Math.pow(.001,dt);player.vx=Math.max(-330,Math.min(330,player.vx));if(ax)player.dir=ax;
- if(keys.jump&&player.onGround){player.vy=-560;player.onGround=false;sound("click",.14)}keys.jump=false;
- player.vy+=1280*dt;
- let prevY=player.y;player.x+=player.vx*dt;player.x=Math.max(0,Math.min(stageWidth-player.w,player.x));player.y+=player.vy*dt;player.onGround=false;
- for(const p of platforms){
-   const prevBottom=prevY+player.h,newBottom=player.y+player.h;
-   if(player.x+player.w>p.x&&player.x<p.x+p.w&&prevBottom<=p.y+5&&newBottom>=p.y&&player.vy>=0){
+ const prev={x:player.x,y:player.y,bottom:player.y+player.h,top:player.y};
+ let move=(keys.right?1:0)-(keys.left?1:0);
+ player.vx+=move*1200*dt;player.vx*=Math.pow(.0012,dt);player.vx=Math.max(-330,Math.min(330,player.vx));if(move)player.facing=move;
+ if(keys.jump&&player.onGround){player.vy=-570;player.onGround=false;playerImg.src="assets/jump.png";play("click",.12)}
+ keys.jump=false;
+ player.vy+=1350*dt;
+ const preCollisionVy=player.vy;
+ player.x+=player.vx*dt;
+ // wall collisions
+ for(const w of walls()){
+   if(player.y+player.h>w.y&&player.y<w.y+w.h){
+     if(prev.x+player.w<=w.x && player.x+player.w>w.x){player.x=w.x-player.w;player.vx=0}
+     else if(prev.x>=w.x+w.w && player.x<w.x+w.w){player.x=w.x+w.w;player.vx=0}
+   }
+ }
+ player.x=Math.max(0,Math.min(VW-player.w,player.x));
+ player.y+=player.vy*dt;player.onGround=false;
+ for(const p of platforms()){
+   const horiz=player.x+player.w>p.x+4&&player.x<p.x+p.w-4;
+   if(horiz&&prev.bottom<=p.y+8&&player.y+player.h>=p.y&&player.vy>=0){
      player.y=p.y-player.h;player.vy=0;player.onGround=true
    }
  }
- if(player.y>H+220){hurt("You fell into the mist.");player.x=Math.max(80,player.x-280);player.y=ground()-220;player.vy=0}
- // Answer blocks never block horizontal movement and never trigger on side contact.
- for(const r of runes){
-   if(r.bounce>0)r.bounce=Math.max(0,r.bounce-dt*5);
-   const horizontal = player.x+player.w > r.x+10 && player.x < r.x+r.w-10;
-   const playerTop = player.y;
-   const prevTop = player.y - player.vy*dt;
-   const blockBottom = r.y+r.h;
-   const hitFromBelow = player.vy < 0 && horizontal && prevTop >= blockBottom-8 && playerTop <= blockBottom+8;
-   if(hitFromBelow){
-     player.y=blockBottom+8;
-     player.vy=120;
-     hitAnswerBlock(r);
+ // deliberate landing choices also act as physical surfaces.
+ // A choice fires only on a genuine descent from ABOVE; standing on it never repeats the answer.
+ for(const {el,r} of choiceRects()){
+   if(!["stone","crystal-choice","rune-pad"].some(c=>el.classList.contains(c)))continue;
+   const i=+el.dataset.challenge;
+   const horiz=player.x+player.w>r.x+8&&player.x<r.x+r.w-8;
+   const crossedTop=horiz&&preCollisionVy>25&&prev.bottom<=r.y-2&&player.y+player.h>=r.y;
+   const resting=horiz&&prev.bottom>=r.y-3&&prev.bottom<=r.y+5&&player.y+player.h>=r.y;
+   if(crossedTop||resting){
+     player.y=r.y-player.h;player.vy=0;player.onGround=true;
+     if(crossedTop&&!done[i])choose(el,"land");
    }
  }
- if(portal.open&&overlap(player,portal)){finishMission()}
- let target=Math.max(0,Math.min(stageWidth-W,player.x-W*.38));
- if(autoFocus>0){
-   autoFocus-=dt;
-   target=Math.max(0,Math.min(stageWidth-W,portal.x-W*.62));
- }
- cameraX+=(target-cameraX)*Math.min(1,dt*(autoFocus>0?5.5:4));
- particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=260*dt;p.life-=dt});particles=particles.filter(p=>p.life>0)
-}
-function rr(x,y,w,h,r,fill,stroke){
- ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}
-}
-function draw(){
- ctx.clearRect(0,0,W,H);ctx.save();ctx.translate(-cameraX,0);
- // stars/fireflies
- for(let i=0;i<45;i++){
-   let x=(i*191+missionIndex*77)%stageWidth,y=110+(i*83)%Math.max(180,H*.56),a=.16+.35*(.5+.5*Math.sin(performance.now()/850+i));
-   ctx.fillStyle=`rgba(255,224,133,${a})`;ctx.beginPath();ctx.arc(x,y,1.5+i%3,0,Math.PI*2);ctx.fill()
- }
- // platforms
- for(const p of platforms){
-   let g=ctx.createLinearGradient(0,p.y,0,p.y+p.h);g.addColorStop(0,"rgba(84,100,55,.98)");g.addColorStop(.16,"rgba(43,64,39,.98)");g.addColorStop(1,"rgba(8,18,15,.99)");
-   rr(p.x,p.y,p.w,p.h,15,g,"rgba(234,205,126,.13)");
-   if(p.w<stageWidth*.8)for(let x=p.x+14;x<p.x+p.w-8;x+=22){ctx.strokeStyle="rgba(140,181,88,.65)";ctx.beginPath();ctx.moveTo(x,p.y);ctx.lineTo(x-2,p.y-10-(x%8));ctx.stroke()}
- }
- // answer bricks suspended overhead
- for(const r of runes){
-   ctx.save();
-   const y=r.y-(r.bounce>0?Math.sin(r.bounce*Math.PI)*10:0);
-   let g=ctx.createLinearGradient(r.x,y,r.x,y+r.h);
-   const correct=!player.answered && r.text===missions[missionIndex].answer;
-   if(correct){
-     g.addColorStop(0,"#b07b35");g.addColorStop(1,"#65401f");
-     ctx.shadowBlur=18;ctx.shadowColor="rgba(255,218,113,.35)";
-   }else{
-     g.addColorStop(0,"#6f3448");g.addColorStop(1,"#351927");
-     ctx.shadowBlur=8;ctx.shadowColor="rgba(120,60,80,.25)";
+ // lanterns: only hit underside while moving upward
+ for(const {el,r} of choiceRects()){
+   if(!el.classList.contains("lantern")||done[1])continue;
+   const horiz=player.x+player.w>r.x+8&&player.x<r.x+r.w-8;
+   const underside=r.y+r.h;
+   if(player.vy<0&&horiz&&prev.top>=underside-8&&player.y<=underside+8){
+     player.y=underside+8;player.vy=120;choose(el,"below")
    }
-   rr(r.x,y,r.w,r.h,12,g,correct?"#d9ad62":"#9f6371");
-   // brick seams
-   ctx.shadowBlur=0;ctx.strokeStyle="rgba(255,237,193,.12)";ctx.lineWidth=1;
-   ctx.beginPath();ctx.moveTo(r.x+r.w/2,y);ctx.lineTo(r.x+r.w/2,y+r.h);ctx.stroke();
-   ctx.beginPath();ctx.moveTo(r.x,y+r.h/2);ctx.lineTo(r.x+r.w,y+r.h/2);ctx.stroke();
-   ctx.fillStyle="#fff1cb";ctx.font="800 13px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";
-   wrapText(r.text,r.x+r.w/2,y+r.h/2,r.w-18,14);
-   ctx.restore()
  }
-// portal
- if(portal.open){
-   ctx.save();let t=performance.now()/700;ctx.shadowBlur=45;ctx.shadowColor="#d6b2ff";
-   let pg=ctx.createRadialGradient(portal.x+portal.w/2,portal.y+portal.h/2,8,portal.x+portal.w/2,portal.y+portal.h/2,95);
-   pg.addColorStop(0,"rgba(255,243,197,.98)");pg.addColorStop(.28,"rgba(181,128,244,.92)");pg.addColorStop(.62,"rgba(86,45,135,.75)");pg.addColorStop(1,"rgba(29,14,43,.2)");
-   rr(portal.x,portal.y,portal.w,portal.h,55,pg,"#e5c8ff");
-   ctx.strokeStyle="rgba(255,231,176,.72)";ctx.lineWidth=4;ctx.strokeRect(portal.x+16,portal.y+16,portal.w-32,portal.h-32);
-   ctx.fillStyle="#fff0c4";ctx.font="800 12px system-ui";ctx.textAlign="center";ctx.fillText("ENTER PORTAL",portal.x+portal.w/2,portal.y-14);
-   ctx.restore()
+ // final orbs: must be airborne and touch center zone
+ for(const {el,r} of choiceRects()){
+   if(!el.classList.contains("orb")||done[4])continue;
+   if(!player.onGround&&overlap(player,r)){player.vy=150;choose(el,"orb")}
  }
- // fairy: large visual sprite with a smaller movement/collision body
- ctx.save();
- let flick=player.inv>0&&Math.floor(player.inv*12)%2===0;
- if(!flick){
-   ctx.shadowBlur=30;ctx.shadowColor="#ffe18d";
-   const dx=player.x-(player.drawW-player.w)/2;
-   const dy=player.y-(player.drawH-player.h);
-   if(player.dir<0){
-     ctx.translate(dx+player.drawW,0);ctx.scale(-1,1);
-     ctx.drawImage(fairyImg,0,dy,player.drawW,player.drawH);
-   } else ctx.drawImage(fairyImg,dx,dy,player.drawW,player.drawH);
+ // fall/reset
+ if(player.y>900){player.x=challenges[current].checkpoint;player.y=520;player.vx=player.vy=0;player.inv=1;setFeedback("The grove returned you to the last checkpoint — no heart lost.")}
+ // final portal
+ if(done[4]){
+   const port={x:5220,y:390,w:210,h:310};
+   if(overlap(player,port)){running=false;play("reward",.9);$("#finalStats").textContent=`Magic score: ${score}. Wrong choices: ${wrongChoices}. Five forest obstacles restored.`;$("#completeOverlay").classList.remove("hidden")}
  }
- ctx.restore();
- // particles
- for(const p of particles){ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;
- ctx.restore()
+ // animation
+ if(move&&player.onGround){walkClock+=dt;if(walkClock>.13){walkClock=0;walkFrame=1-walkFrame;playerImg.src=walkFrame?"assets/walk1.png":"assets/walk2.png"}}
+ else if(player.onGround)playerImg.src="assets/stand.png";
+ current=sectionForX(player.x);
+ if(done[current]&&current<4&&player.x>challenges[current+1].checkpoint-100)current++;
+ setQuest(current);checkpointX=challenges[current].checkpoint;
+ playerVisual();updateCamera(false)
 }
-function wrapText(text,cx,cy,maxW,lineH){
- const words=text.split(" ");let line="",lines=[];
- for(const w of words){let test=line?line+" "+w:w;if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=w}else line=test}lines.push(line);
- let y=cy-(lines.length-1)*lineH/2;for(const l of lines){ctx.fillText(l,cx,y);y+=lineH}
-}
-function loop(t){let dt=Math.min(.033,(t-last)/1000||0);last=t;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+function loop(t){const dt=Math.min(.032,(t-last)/1000||0);last=t;physics(dt);requestAnimationFrame(loop)}requestAnimationFrame(loop);
 
-function setKey(k,v){keys[k]=v}
 addEventListener("keydown",e=>{
- if(["ArrowLeft","a","A"].includes(e.key)){e.preventDefault();setKey("left",true)}
- if(["ArrowRight","d","D"].includes(e.key)){e.preventDefault();setKey("right",true)}
- if(["ArrowUp","w","W"," "].includes(e.key)){e.preventDefault();keys.jump=true}
+ if(["a","A","ArrowLeft"].includes(e.key)){keys.left=true;e.preventDefault()}
+ if(["d","D","ArrowRight"].includes(e.key)){keys.right=true;e.preventDefault()}
+ if(["w","W","ArrowUp"," "].includes(e.key)){keys.jump=true;e.preventDefault()}
 });
-addEventListener("keyup",e=>{if(["ArrowLeft","a","A"].includes(e.key))setKey("left",false);if(["ArrowRight","d","D"].includes(e.key))setKey("right",false)});
-document.querySelectorAll("[data-key]").forEach(b=>{
- const k=b.dataset.key;b.addEventListener("pointerdown",e=>{e.preventDefault();if(k==="jump")keys.jump=true;else setKey(k,true)});
- b.addEventListener("pointerup",()=>{if(k!=="jump")setKey(k,false)});b.addEventListener("pointercancel",()=>{if(k!=="jump")setKey(k,false)})
-});
-
-// functional buttons
-document.getElementById("soundBtn").onclick=()=>{
- soundOn=!soundOn;const b=document.getElementById("soundBtn");b.textContent=soundOn?"Sound On":"Sound Off";b.classList.toggle("off",!soundOn);if(soundOn)sound("click",.45)
-};
-document.getElementById("restartBtn").onclick=()=>{if(running){score=Math.max(0,score-10);sound("click",.45);initMission();setFeedback("Mission restarted.","")}};
-document.getElementById("helpBtn").onclick=()=>{running=false;document.getElementById("helpOverlay").classList.remove("hidden")};
-document.getElementById("closeHelpBtn").onclick=()=>{document.getElementById("helpOverlay").classList.add("hidden");running=true};
-document.getElementById("startBtn").onclick=()=>{document.getElementById("intro").classList.add("hidden");missionIndex=0;score=0;totalWrong=0;running=true;sound("click",.5);initMission()};
-document.getElementById("continueBtn").onclick=()=>{sound("click",.4);nextMission()};
-document.getElementById("againBtn").onclick=()=>{document.getElementById("gameComplete").classList.add("hidden");missionIndex=0;score=0;totalWrong=0;running=true;initMission()};
-
-initMission();
+addEventListener("keyup",e=>{if(["a","A","ArrowLeft"].includes(e.key))keys.left=false;if(["d","D","ArrowRight"].includes(e.key))keys.right=false});
+$$("[data-key]").forEach(b=>{b.addEventListener("pointerdown",e=>{e.preventDefault();const k=b.dataset.key;if(k==="jump")keys.jump=true;else keys[k]=true});b.addEventListener("pointerup",()=>{const k=b.dataset.key;if(k!=="jump")keys[k]=false});b.addEventListener("pointercancel",()=>{keys.left=keys.right=false})});
+$("#sfxBtn").onclick=()=>{sfxOn=!sfxOn;$("#sfxBtn").textContent=sfxOn?"SFX On":"SFX Off";$("#sfxBtn").classList.toggle("off",!sfxOn);if(sfxOn)play("click",.4)};
+$("#restartBtn").onclick=()=>{play("click",.35);location.reload()};
+$("#helpBtn").onclick=()=>{running=false;$("#helpOverlay").classList.remove("hidden")};
+$("#closeHelp").onclick=()=>{$("#helpOverlay").classList.add("hidden");running=true};
+$("#startBtn").onclick=()=>{$("#intro").classList.add("hidden");running=true;setQuest(0);updateHUD();playerVisual();setFeedback("Bridge of Habits: land on the answer stone you choose.")};
+$("#againBtn").onclick=()=>location.reload();
+shuffleChoices();updateHUD();setQuest(0);playerVisual();updateCamera(true);
 })();
 </script>
+</div>
 </body>
 </html>
