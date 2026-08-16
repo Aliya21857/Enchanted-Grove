@@ -1,21 +1,14 @@
-# Fairy Forest Quest — Moon Bridge Chapter
+# Fairy Forest Quest — Polished FIX 2
 
-Polished single-game prototype.
-
-What is included:
-- one continuous side-scrolling fantasy level
-- five different in-world English obstacles
-- one blank per sentence
-- intentional answer selection only
-- bridge building, doors opening, crystal crossing, rune door, final Moon Gate
-- 3-heart system; a heart is lost only on an intentional wrong choice
-- checkpoints and fall recovery without punishment
-- functional Help / SFX / Restart
-- no background music and no synthetic speech
-- generated fairy sprite and generated environment art integrated as actual game assets
+Critical fixes:
+- only ONE fairy is now visible: background replaced with clean environment-only art
+- Moon Gate correct answer is truly `can catch` in the game logic
+- removed the broken internal remapping that prevented `can catch` from succeeding
+- final orb collision area is enlarged to match the visible fairy sprite
+- completed answer choices fade away, so previous sections no longer clutter later scenes
+- final correct orb gives immediate visual feedback and opens the Moon Gate
 
 Controls:
-- A/D or Left/Right: move
-- W / Up / Space: jump
-
-Upload index.html, README.md and the assets folder to GitHub Pages root.
+- A/D or Left/Right — move
+- W / Up / Space — jump
+- Moon Gate — jump through the center of your chosen orb

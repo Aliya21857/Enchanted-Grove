@@ -57,6 +57,14 @@ button:focus-visible{outline:2px solid #ffe8a6;outline-offset:3px}
 .choice.orb{width:145px;height:62px;border-radius:999px;background:radial-gradient(circle at 45% 25%,rgba(255,243,196,.17),transparent 32%),linear-gradient(180deg,#6b4c89,#2a1d3b);border-color:#c4a0ef;box-shadow:0 0 28px rgba(172,113,238,.25)}
 .choice.correct-hit{animation:correctHit .65s ease;background:linear-gradient(180deg,#806526,#3f3014)!important;border-color:#f8d77b!important;box-shadow:0 0 38px rgba(255,211,92,.55),0 14px 24px rgba(0,0,0,.34)!important}
 .choice.wrong-hit{animation:wrongHit .48s ease;background:linear-gradient(180deg,#80382f,#351718)!important;border-color:#e78d7f!important}
+
+.choice.resolved{
+ opacity:0!important;
+ transform:scale(.78)!important;
+ pointer-events:none!important;
+ transition:opacity .45s ease,transform .45s ease!important;
+}
+
 @keyframes correctHit{45%{transform:translateY(-12px) scale(1.06);filter:brightness(1.35)}}
 @keyframes wrongHit{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 
@@ -239,7 +247,7 @@ const challenges=[
  {kicker:"Lantern gate",text:'She <span class="blank">___</span> her keys right now.',hint:"Jump and strike a lantern from below.",answer:"is looking for",method:"below",checkpoint:1320},
  {kicker:"Crystal crossing",text:'Yesterday we <span class="blank">___</span> an old castle.',hint:"Land on the crystal pedestal you choose.",answer:"visited",method:"land",checkpoint:2480},
  {kicker:"Rune door",text:'You <span class="blank">___</span> an umbrella because it might rain.',hint:"Jump and land on one floor rune.",answer:"should take",method:"land",checkpoint:3600},
- {kicker:"Moon Gate",text:'If we hurry, we <span class="blank">___</span> the next train.',hint:"Jump into the magic orb you choose.",answer:"orb",checkpoint:4490}
+ {kicker:"Moon Gate",text:'If we hurry, we <span class="blank">___</span> the next train.',hint:"Jump so the fairy passes through the center of the magic orb you choose.",answer:"can catch",method:"orb",checkpoint:4490}
 ];
 function shuffleArray(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function shuffleChoices(){
@@ -267,7 +275,12 @@ function updateHUD(){
  $("#hearts").textContent=Array.from({length:3},(_,i)=>i<hearts?"♥":"♡").join(" ");
 }
 function setQuest(i){
- current=i;const q=challenges[i];$("#questKicker").textContent=q.kicker;$("#questText").innerHTML=q.text;$("#questHint").textContent=q.hint;$("#questCard").classList.toggle("done",done[i]);
+ current=i;
+ const q=challenges[i];
+ $("#questKicker").textContent=q.kicker;
+ $("#questText").innerHTML=q.text;
+ $("#questHint").textContent=q.hint;
+ $("#questCard").classList.toggle("done",done[i]);
 }
 function sectionForX(x){
  if(x<1200)return 0;if(x<2400)return 1;if(x<3500)return 2;if(x<4450)return 3;return 4
@@ -331,14 +344,25 @@ function completeChallenge(i,choice){
  if(i===1){$("#door2").classList.add("open");$("#portal2").classList.add("show");play("portal",.62);setFeedback("Correct — “is looking for”. The Moon Door dissolves into a passage. +100 magic.","good")}
  if(i===2){$("#crystalA").classList.add("charged");$("#crystalB").classList.add("charged");$("#crystalC").classList.add("charged");$("#bridge3").classList.add("show");setFeedback("Correct — “visited”. The crystals weave a crossing over the water. +100 magic.","good")}
  if(i===3){$("#door4").classList.add("open");$("#portal4").classList.add("show");play("portal",.62);setFeedback("Correct — “should take”. The rune door opens. +100 magic.","good")}
- if(i===4){$("#finalPortal").classList.add("show");play("portal",.8);setFeedback("Correct — “can catch”. The Moon Gate is awake. Enter it to finish.","good")}
- updateHUD();$("#questCard").classList.add("done");
+ if(i===4){
+   $("#finalPortal").classList.add("show");
+   playerEl.classList.add("magic");
+   setTimeout(()=>playerEl.classList.remove("magic"),900);
+   play("portal",.8);
+   setFeedback("Correct — “can catch”. +100 magic. The Moon Gate is awake — go through the portal.","good");
+ }
+ updateHUD();
+ $("#questCard").classList.add("done");
+ setTimeout(()=>{
+   $$(`.choice[data-challenge="${i}"]`).forEach(el=>el.classList.add("resolved"));
+ },650);
 }
 function choose(choice,mode){
- const i=+choice.dataset.challenge;if(done[i])return;
- let value=choice.dataset.value;
- if(i===4 && value==="can catch")value="orb";
- if(value===challenges[i].answer)completeChallenge(i,choice);else hurt(choice)
+ const i=+choice.dataset.challenge;
+ if(done[i])return;
+ const value=choice.dataset.value;
+ if(value===challenges[i].answer)completeChallenge(i,choice);
+ else hurt(choice);
 }
 function choiceRects(){return $$(".choice").map(el=>{const r={x:parseFloat(el.style.left),y:parseFloat(el.style.top),w:el.offsetWidth||parseFloat(getComputedStyle(el).width),h:el.offsetHeight||parseFloat(getComputedStyle(el).height)};return {el,r}})}
 function physics(dt){
@@ -389,10 +413,23 @@ function physics(dt){
      player.y=underside+8;player.vy=120;choose(el,"below")
    }
  }
- // final orbs: must be airborne and touch center zone
+ // final orbs: choose by jumping into the selected orb.
+ // Use an expanded hit area because the fairy artwork is much larger than its physics body.
  for(const {el,r} of choiceRects()){
    if(!el.classList.contains("orb")||done[4])continue;
-   if(!player.onGround&&overlap(player,r)){player.vy=150;choose(el,"orb")}
+   if(player.onGround)continue;
+   const expanded={x:r.x-42,y:r.y-55,w:r.w+84,h:r.h+110};
+   const visualBody={
+     x:player.x-34,
+     y:player.y-70,
+     w:player.w+68,
+     h:player.h+95
+   };
+   if(overlap(visualBody,expanded)){
+     player.vy=130;
+     choose(el,"orb");
+     break;
+   }
  }
  // fall/reset
  if(player.y>900){player.x=challenges[current].checkpoint;player.y=520;player.vx=player.vy=0;player.inv=1;setFeedback("The grove returned you to the last checkpoint — no heart lost.")}
