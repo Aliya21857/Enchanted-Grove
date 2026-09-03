@@ -1,5 +1,5 @@
 import{read,write,clearProgress}from'./storage.js?v=3';
-import{Sound}from'./audio.js?v=10';
+import{Sound}from'./audio.js?v=11';
 
 const app=document.querySelector('#app'),toast=document.querySelector('#toast');
 let data,state=read(),view=new URLSearchParams(location.search).get('game')==='3'?'portraits':'home',dispose=()=>{},sound=new Sound(state);
