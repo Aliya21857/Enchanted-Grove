@@ -321,7 +321,10 @@ const basePlatforms=[
 function platforms(){
  const p=[...basePlatforms];
  if(done[0])p.push({x:450,y:585,w:570,h:24});
- if(done[2])p.push({x:3240,y:646,w:470,h:25});
+ // Match the collider to the whole visible rope bridge, including both ends.
+ // The former narrow collider let the fairy's visible sprite appear supported
+ // while its smaller physics body slipped through near an edge.
+ if(done[2])p.push({x:3185,y:646,w:575,h:25});
  return p
 }
 function walls(){
@@ -505,7 +508,7 @@ shuffleChoices();updateHUD();setQuest(0);playerVisual();updateCamera(true);
 </script>
 <script type="module">
 import{read}from'./src/storage.js?v=3';
-import{Sound}from'./src/audio.js?v=3';
+import{Sound}from'./src/audio.js?v=10';
 const enchantedScore=new Sound(read());
 addEventListener('pointerdown',()=>enchantedScore.start(),{once:true});
 </script>
