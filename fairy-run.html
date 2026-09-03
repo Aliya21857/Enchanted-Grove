@@ -50,6 +50,8 @@ button:focus-visible{outline:2px solid #ffe8a6;outline-offset:3px}
 .choice::after{content:"";position:absolute;inset:-6px;border:1px solid rgba(255,226,147,.09);border-radius:inherit;pointer-events:none}
 .choice.stone{width:146px;height:76px;border-radius:48% 52% 45% 55%/58% 52% 48% 42%;
  background:radial-gradient(circle at 35% 20%,rgba(255,255,255,.06),transparent 25%),linear-gradient(145deg,#57646b,#222b31 64%,#11171c);border:2px solid #718d9a}
+.choice.stone[data-challenge="0"]{width:118px;height:70px}
+.bridge-safe-platform{position:absolute;z-index:11;left:420px;top:555px;width:580px;pointer-events:none;user-select:none;filter:drop-shadow(0 16px 22px rgba(0,0,0,.34))}
 .choice.lantern{width:175px;height:64px;border-radius:18px;background:linear-gradient(180deg,#6b3c2d,#2e1e1d);border-color:#bc8a53;box-shadow:0 0 18px rgba(255,190,79,.16),0 14px 24px rgba(0,0,0,.34)}
 .choice.lantern::before{content:"✦";position:absolute;top:-35px;color:#ffd786;font-size:30px;text-shadow:0 0 18px #ffbd47}
 .choice.crystal-choice{width:150px;height:72px;border-radius:18px;background:linear-gradient(180deg,rgba(49,61,76,.96),rgba(21,26,35,.96));border-color:#6a9bc1}
@@ -144,9 +146,10 @@ button:focus-visible{outline:2px solid #ffe8a6;outline-offset:3px}
    <div class="section-label" style="left:80px;top:590px">01 · Bridge of Habits</div>
    <img class="asset decor" src="assets/platform_start.png" style="left:-20px;top:520px;width:520px">
    <div class="water-zone" style="left:450px;top:720px;width:560px"></div>
-   <div class="choice stone" data-challenge="0" data-value="goes" style="left:535px;top:620px">goes</div>
-   <div class="choice stone" data-challenge="0" data-value="go" style="left:700px;top:560px">go</div>
-   <div class="choice stone" data-challenge="0" data-value="is going" style="left:865px;top:620px">is going</div>
+   <img class="bridge-safe-platform" src="assets/platform_long.png" alt="">
+   <div class="choice stone" data-challenge="0" data-value="goes" style="left:600px;top:500px">goes</div>
+   <div class="choice stone" data-challenge="0" data-value="go" style="left:735px;top:500px">go</div>
+   <div class="choice stone" data-challenge="0" data-value="is going" style="left:870px;top:500px">is going</div>
    <img id="bridge1" class="asset" src="assets/bridge.png" style="left:430px;top:505px;width:650px;z-index:12">
    <img class="asset decor" src="assets/platform_long.png" style="left:1000px;top:555px;width:570px">
 
@@ -243,6 +246,8 @@ const keys={left:false,right:false,jump:false};
 function saveGroveLight(){const key='enchantedGroveRebuild.v1';try{const saved=JSON.parse(localStorage.getItem(key)||'{}');saved.spellPathCompleted=true;saved.moonTreeState=['spellPathCompleted','potionOfWordsCompleted','whisperingPortraitsCompleted'].filter(k=>saved[k]).length;localStorage.setItem(key,JSON.stringify(saved))}catch{}}
 const done=[false,false,false,false,false];
 let checkpointX=120, player={x:120,y:588,w:62,h:112,vx:0,vy:0,onGround:false,facing:1,inv:0};
+let bridgeChoiceArmed=false;
+let bridgeJumpOriginX=null;
 let walkFrame=0,walkClock=0;
 const sounds={ok:"assets/correct.wav",bad:"assets/wrong.wav",portal:"assets/portal.wav",reward:"assets/reward.wav",click:"assets/click.wav"};
 const challenges=[
@@ -252,10 +257,11 @@ const challenges=[
  {kicker:"Rune door",text:'You <span class="blank">___</span> an umbrella because it might rain.',hint:"Jump and land on one floor rune.",answer:"should take",method:"land",checkpoint:3600},
  {kicker:"Moon Gate",text:'If we hurry, we <span class="blank">___</span> the next train.',hint:"Jump so the fairy passes through the center of the magic orb you choose.",answer:"can catch",method:"orb",checkpoint:4490}
 ];
+const bridgeChoiceZone={x:420,y:700,w:580,h:200,respawnX:480,respawnY:588};
 function shuffleArray(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function shuffleChoices(){
  const groups=[
-   {sel:'[data-challenge="0"]',slots:[["535px","620px"],["700px","560px"],["865px","620px"]]},
+   {sel:'[data-challenge="0"]',slots:[["600px","500px"],["735px","500px"],["870px","500px"]]},
    {sel:'[data-challenge="1"]',slots:[["1510px","465px"],["1735px","385px"],["1960px","465px"]]},
    {sel:'[data-challenge="2"]',slots:[["2560px","598px"],["2750px","548px"],["2940px","598px"]]},
    {sel:'[data-challenge="3"]',slots:[["3740px","680px"],["3920px","680px"],["4100px","680px"]]},
@@ -305,6 +311,7 @@ function playerVisual(){
 }
 const basePlatforms=[
  {x:-50,y:700,w:500,h:200},{x:1000,y:700,w:560,h:200},
+ {x:bridgeChoiceZone.x,y:bridgeChoiceZone.y,w:bridgeChoiceZone.w,h:bridgeChoiceZone.h},
  {x:1240,y:700,w:1220,h:200},
  {x:2430,y:700,w:850,h:200},{x:3540,y:700,w:910,h:200},
  {x:4460,y:700,w:1020,h:200},
@@ -331,12 +338,23 @@ function spawnMagic(x,y,color="#ffe18b"){
 }
 function hurt(choice){
  if(player.inv>0)return;
+ const challengeIndex=+choice.dataset.challenge;
  hearts--;wrongChoices++;player.inv=1.1;choice.classList.remove("wrong-hit");void choice.offsetWidth;choice.classList.add("wrong-hit");play("bad",.62);
  setFeedback("Not this one. You chose it deliberately, so one heart faded. Try another.","bad");updateHUD();
+ if(challengeIndex===0)setTimeout(()=>respawnOnBridgePlatform(),320);
  if(hearts<=0)setTimeout(()=>restartChallenge(),650)
 }
+function respawnOnBridgePlatform(message=""){
+ player.x=bridgeChoiceZone.respawnX;player.y=bridgeChoiceZone.respawnY;player.vx=player.vy=0;player.onGround=true;player.inv=Math.max(player.inv,.7);
+ bridgeChoiceArmed=true;
+ bridgeJumpOriginX=null;
+ if(message)setFeedback(message);
+ playerVisual();updateCamera(false)
+}
 function restartChallenge(){
- hearts=3;player.x=challenges[current].checkpoint;player.y=588;player.vx=player.vy=0;player.inv=1;
+ hearts=3;
+ if(current===0&&!done[0])respawnOnBridgePlatform();
+ else{player.x=challenges[current].checkpoint;player.y=588;player.vx=player.vy=0;player.inv=1}
  $$(".choice").forEach(x=>x.classList.remove("wrong-hit"));
  setFeedback("Checkpoint restored. The challenge is ready again.");updateHUD()
 }
@@ -367,14 +385,18 @@ function choose(choice,mode){
  if(value===challenges[i].answer)completeChallenge(i,choice);
  else hurt(choice);
 }
-function choiceRects(){return $$(".choice").map(el=>{const r={x:parseFloat(el.style.left),y:parseFloat(el.style.top),w:el.offsetWidth||parseFloat(getComputedStyle(el).width),h:el.offsetHeight||parseFloat(getComputedStyle(el).height)};return {el,r}})}
+function choiceRects(){return $$(".choice").map(el=>{const visual={x:parseFloat(el.style.left),y:parseFloat(el.style.top),w:el.offsetWidth||parseFloat(getComputedStyle(el).width),h:el.offsetHeight||parseFloat(getComputedStyle(el).height)};const r=el.dataset.challenge==="0"?{x:visual.x+18,y:visual.y+6,w:visual.w-36,h:visual.h-6}:visual;return {el,r,visual}})}
 function physics(dt){
  if(!running)return;
  if(player.inv>0)player.inv-=dt;
  const prev={x:player.x,y:player.y,bottom:player.y+player.h,top:player.y};
  let move=(keys.right?1:0)-(keys.left?1:0);
  player.vx+=move*1200*dt;player.vx*=Math.pow(.0012,dt);player.vx=Math.max(-330,Math.min(330,player.vx));if(move)player.facing=move;
- if(keys.jump&&player.onGround){player.vy=-570;player.onGround=false;playerImg.src="assets/jump.png";play("click",.12)}
+ if(keys.jump&&player.onGround){
+   const onBridgePlatform=!done[0]&&player.x+player.w>bridgeChoiceZone.x&&player.x<bridgeChoiceZone.x+bridgeChoiceZone.w;
+   bridgeJumpOriginX=onBridgePlatform?player.x+player.w/2:null;
+   player.vy=onBridgePlatform?-740:-570;player.onGround=false;playerImg.src="assets/jump.png";play("click",.12)
+ }
  keys.jump=false;
  player.vy+=1350*dt;
  const preCollisionVy=player.vy;
@@ -394,17 +416,26 @@ function physics(dt){
      player.y=p.y-player.h;player.vy=0;player.onGround=true
    }
  }
+ // The first answer cannot trigger until the fairy has safely reached the neutral runway.
+ if(!done[0]&&player.onGround&&player.x+player.w>bridgeChoiceZone.x&&player.x<600)bridgeChoiceArmed=true;
  // deliberate landing choices also act as physical surfaces.
  // A choice fires only on a genuine descent from ABOVE; standing on it never repeats the answer.
  for(const {el,r} of choiceRects()){
    if(!["stone","crystal-choice","rune-pad"].some(c=>el.classList.contains(c)))continue;
    const i=+el.dataset.challenge;
-   const horiz=player.x+player.w>r.x+8&&player.x<r.x+r.w-8;
-   const crossedTop=horiz&&preCollisionVy>25&&prev.bottom<=r.y-2&&player.y+player.h>=r.y;
+   const edgeInset=i===0?0:8;
+   const playerCenter=player.x+player.w/2;
+   const horiz=i===0?playerCenter>r.x&&playerCenter<r.x+r.w:player.x+player.w>r.x+edgeInset&&player.x<r.x+r.w-edgeInset;
+   const previousTopLimit=i===0?r.y+2:r.y-2;
+   const crossedTop=horiz&&preCollisionVy>25&&prev.bottom<=previousTopLimit&&player.y+player.h>=r.y;
    const resting=horiz&&prev.bottom>=r.y-3&&prev.bottom<=r.y+5&&player.y+player.h>=r.y;
    if(crossedTop||resting){
      player.y=r.y-player.h;player.vy=0;player.onGround=true;
-     if(crossedTop&&!done[i])choose(el,"land");
+     if(crossedTop&&!done[i]){
+       const deliberateBridgeLanding=i!==0||(bridgeChoiceArmed&&bridgeJumpOriginX!==null&&bridgeJumpOriginX>r.x&&bridgeJumpOriginX<r.x+r.w);
+       if(i===0&&!deliberateBridgeLanding)respawnOnBridgePlatform("That was only a navigation jump. No answer was selected and no heart was lost.");
+       else choose(el,"land");
+     }
    }
  }
  // lanterns: only hit underside while moving upward
@@ -434,8 +465,12 @@ function physics(dt){
      break;
    }
  }
+ // In the bridge choice zone, navigation mistakes are never language mistakes.
+ if(!done[0]&&player.y>780&&player.x+player.w>360&&player.x<1030){
+   respawnOnBridgePlatform("The stone was missed. Back to the safe platform — no heart lost.");
+ }
  // fall/reset
- if(player.y>900){player.x=challenges[current].checkpoint;player.y=520;player.vx=player.vy=0;player.inv=1;setFeedback("The grove returned you to the last checkpoint — no heart lost.")}
+ else if(player.y>900){player.x=challenges[current].checkpoint;player.y=520;player.vx=player.vy=0;player.inv=1;setFeedback("The grove returned you to the last checkpoint — no heart lost.")}
  // final portal
  if(done[4]){
    const port={x:5220,y:390,w:210,h:310};

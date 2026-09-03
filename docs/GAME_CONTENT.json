@@ -289,6 +289,55 @@
       }
     ]
   },
+  "runeTicTacToe": {
+    "learningGoals": [
+      "grammar in context",
+      "natural vocabulary chunks",
+      "word meaning in context",
+      "error correction",
+      "sentence building"
+    ],
+    "challenges": [
+      {"id":"r1-01","difficulty":1,"type":"Complete the sentence","prompt":"My sister ____ tennis every Saturday.","options":["plays","play","is playing"],"answer":"plays","feedback":"With ‘my sister’ in the Present Simple, use ‘plays’."},
+      {"id":"r1-02","difficulty":1,"type":"Complete the sentence","prompt":"Look! The children ____ in the garden.","options":["are playing","play","plays"],"answer":"are playing","feedback":"‘Look!’ signals an action happening now: ‘are playing’."},
+      {"id":"r1-03","difficulty":1,"type":"Natural chunk","prompt":"I always ____ my homework after dinner.","options":["do","make","take"],"answer":"do","feedback":"The natural phrase is ‘do homework’."},
+      {"id":"r1-04","difficulty":1,"type":"Natural chunk","prompt":"Please ____ a photo of us.","options":["take","make","do"],"answer":"take","feedback":"The natural phrase is ‘take a photo’."},
+      {"id":"r1-05","difficulty":1,"type":"Word in context","prompt":"We stayed at a small ____ near the beach.","options":["hotel","ticket","journey"],"answer":"hotel","feedback":"A hotel is a place where travellers stay."},
+      {"id":"r1-06","difficulty":1,"type":"Word in context","prompt":"I was thirsty, so I drank a glass of ____.","options":["water","bread","rice"],"answer":"water","feedback":"Water is the only drink in the options."},
+      {"id":"r1-07","difficulty":1,"type":"Find the error","prompt":"Choose the correct version: <em>She don't like coffee.</em>","options":["She doesn't like coffee.","She don't likes coffee.","She isn't like coffee."],"answer":"She doesn't like coffee.","feedback":"Use ‘doesn’t + base verb’ with she."},
+      {"id":"r1-08","difficulty":1,"type":"Find the error","prompt":"Choose the correct version: <em>We was late.</em>","options":["We were late.","We are late yesterday.","We be late."],"answer":"We were late.","feedback":"The past form of ‘be’ with we is ‘were’."},
+      {"id":"r1-09","difficulty":1,"type":"Build the sentence","prompt":"Describe a finished visit to a castle yesterday.","chunks":["We","visited","the castle","yesterday."],"answer":"We visited the castle yesterday.","feedback":"Correct order: We visited the castle yesterday."},
+      {"id":"r1-10","difficulty":1,"type":"Build the sentence","prompt":"Ask someone in the Present Simple if they like this book.","chunks":["Do","you","like","this book?"],"answer":"Do you like this book?","feedback":"Correct order: Do you like this book?"},
+      {"id":"r1-11","difficulty":1,"type":"Complete the sentence","prompt":"Tom ____ breakfast at seven every day.","options":["has","have","is having"],"answer":"has","feedback":"A daily routine with Tom takes ‘has’."},
+      {"id":"r1-12","difficulty":1,"type":"Word in context","prompt":"The opposite of ‘noisy’ is ____.","options":["quiet","crowded","heavy"],"answer":"quiet","feedback":"‘Quiet’ is the opposite of ‘noisy’."},
+
+      {"id":"r2-01","difficulty":2,"type":"Complete the sentence","prompt":"Mia usually walks, but today she ____ the bus.","options":["is taking","takes","take"],"answer":"is taking","feedback":"‘Today’ contrasts with the usual routine, so use ‘is taking’."},
+      {"id":"r2-02","difficulty":2,"type":"Complete the sentence","prompt":"We ____ that film last weekend.","options":["saw","see","have see"],"answer":"saw","feedback":"‘Last weekend’ requires the Past Simple: ‘saw’."},
+      {"id":"r2-03","difficulty":2,"type":"Natural chunk","prompt":"We need to ____ a decision before Friday.","options":["make","do","take"],"answer":"make","feedback":"The natural phrase is ‘make a decision’."},
+      {"id":"r2-04","difficulty":2,"type":"Natural chunk","prompt":"Can you ____ me a favour?", "options":["do","make","give to"],"answer":"do","feedback":"The natural phrase is ‘do someone a favour’."},
+      {"id":"r2-05","difficulty":2,"type":"Word in context","prompt":"The train leaves from ____ six.","options":["platform","pavement","stage"],"answer":"platform","feedback":"Trains leave from a station platform."},
+      {"id":"r2-06","difficulty":2,"type":"Word in context","prompt":"You can borrow books from a ____.","options":["library","bakery","factory"],"answer":"library","feedback":"A library lends books."},
+      {"id":"r2-07","difficulty":2,"type":"Find the error","prompt":"Choose the correct version: <em>He can to swim.</em>","options":["He can swim.","He cans swim.","He can swimming."],"answer":"He can swim.","feedback":"Use ‘can + base verb’ without ‘to’."},
+      {"id":"r2-08","difficulty":2,"type":"Find the error","prompt":"Choose the correct version: <em>I didn't went out.</em>","options":["I didn't go out.","I don't went out.","I wasn't go out."],"answer":"I didn't go out.","feedback":"After ‘didn’t’, use the base form ‘go’."},
+      {"id":"r2-09","difficulty":2,"type":"Build the sentence","prompt":"Say that visiting London is not part of her life experience.","chunks":["She","has never","visited","London."],"answer":"She has never visited London.","feedback":"Correct order: She has never visited London."},
+      {"id":"r2-10","difficulty":2,"type":"Build the sentence","prompt":"Ask what the people are doing at this moment.","chunks":["What","are","they","doing now?"],"answer":"What are they doing now?","feedback":"Correct order: What are they doing now?"},
+      {"id":"r2-11","difficulty":2,"type":"Complete the sentence","prompt":"There ____ any milk in the fridge.","options":["isn't","aren't","doesn't"],"answer":"isn't","feedback":"‘Milk’ is uncountable, so use ‘isn’t’."},
+      {"id":"r2-12","difficulty":2,"type":"Natural chunk","prompt":"I’m really looking forward ____ the holidays.","options":["to","for","at"],"answer":"to","feedback":"The phrase is ‘look forward to’."},
+
+      {"id":"r3-01","difficulty":3,"type":"Complete the sentence","prompt":"If it rains tomorrow, we ____ at home.","options":["will stay","stay","stayed"],"answer":"will stay","feedback":"In the first conditional, use ‘will + verb’ in the result clause."},
+      {"id":"r3-02","difficulty":3,"type":"Complete the sentence","prompt":"I ____ this book yet.","options":["haven't finished","didn't finish","don't finish"],"answer":"haven't finished","feedback":"‘Yet’ commonly takes the Present Perfect here."},
+      {"id":"r3-03","difficulty":3,"type":"Natural chunk","prompt":"Please ____ attention to the instructions.","options":["pay","give","make"],"answer":"pay","feedback":"The natural phrase is ‘pay attention’."},
+      {"id":"r3-04","difficulty":3,"type":"Natural chunk","prompt":"It took me an hour to ____ ready.","options":["get","make","become myself"],"answer":"get","feedback":"The natural phrase is ‘get ready’."},
+      {"id":"r3-05","difficulty":3,"type":"Word in context","prompt":"The path was very ____ after the rain, so we walked carefully.","options":["slippery","generous","patient"],"answer":"slippery","feedback":"A wet path can be slippery."},
+      {"id":"r3-06","difficulty":3,"type":"Word in context","prompt":"Nora is very ____: she always tells the truth.","options":["honest","nervous","ordinary"],"answer":"honest","feedback":"A person who tells the truth is honest."},
+      {"id":"r3-07","difficulty":3,"type":"Find the error","prompt":"Choose the correct version: <em>I've seen him yesterday.</em>","options":["I saw him yesterday.","I've saw him yesterday.","I see him yesterday."],"answer":"I saw him yesterday.","feedback":"Use the Past Simple with the finished time ‘yesterday’."},
+      {"id":"r3-08","difficulty":3,"type":"Find the error","prompt":"Choose the correct version: <em>This bag is more cheaper.</em>","options":["This bag is cheaper.","This bag is more cheap.","This bag is cheapest."],"answer":"This bag is cheaper.","feedback":"Do not use ‘more’ with the comparative ‘cheaper’."},
+      {"id":"r3-09","difficulty":3,"type":"Build the sentence","prompt":"Say that you started living here three years ago and still live here.","chunks":["We","have lived","here","for three years."],"answer":"We have lived here for three years.","feedback":"Correct order: We have lived here for three years."},
+      {"id":"r3-10","difficulty":3,"type":"Build the sentence","prompt":"Ask about the length of time someone has known their best friend.","chunks":["How long","have you","known","your best friend?"],"answer":"How long have you known your best friend?","feedback":"Correct order: How long have you known your best friend?"},
+      {"id":"r3-11","difficulty":3,"type":"Complete the sentence","prompt":"The window ____ by the storm last night.","options":["was broken","broke","is breaking"],"answer":"was broken","feedback":"The window received the action, so use the past passive ‘was broken’."},
+      {"id":"r3-12","difficulty":3,"type":"Natural chunk","prompt":"We ran ____ of sugar while baking the cake.","options":["out","away","off"],"answer":"out","feedback":"‘Run out of’ means to have none left."}
+    ]
+  },
   "whisperingPortraits": {
     "learningGoals": [
       "listening for gist",
