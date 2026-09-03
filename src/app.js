@@ -1,5 +1,5 @@
 import{read,write,clearProgress}from'./storage.js?v=3';
-import{Sound}from'./audio.js?v=11';
+import{Sound}from'./audio.js?v=12';
 
 const app=document.querySelector('#app'),toast=document.querySelector('#toast');
 let data,state=read(),view=new URLSearchParams(location.search).get('game')==='3'?'portraits':'home',dispose=()=>{},sound=new Sound(state);
@@ -218,7 +218,7 @@ back.remove()};
 back.querySelector('[data-close]').focus()}
 function common(){qAll('[data-play]').forEach(b=>b.onclick=()=>{view=b.dataset.play;
 render()});
-qAll('[data-runner]').forEach(b=>b.onclick=()=>{location.href='./fairy-run.html'});
+qAll('[data-runner]').forEach(b=>b.onclick=()=>{sound.stop();location.href='./fairy-run.html?v=24'});
 qAll('[data-how]').forEach(b=>b.onclick=()=>how(b.dataset.how));
 qAll('[data-home]').forEach(b=>b.onclick=()=>{view='home';
 render()});
@@ -250,6 +250,7 @@ toast.classList.add('show');
 setTimeout(()=>toast.classList.remove('show'),2400)}const q=s=>document.querySelector(s),qAll=s=>document.querySelectorAll(s);
 
 addEventListener('pointerdown',()=>sound.start(),{once:true});
+addEventListener('pagehide',()=>sound.stop());
 addEventListener('pointermove',e=>{const c=q('#cursor');
 if(c){c.style.left=e.clientX+'px';
 c.style.top=e.clientY+'px'}});

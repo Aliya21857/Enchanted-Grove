@@ -202,7 +202,7 @@ button:focus-visible{outline:2px solid #ffe8a6;outline-offset:3px}
  <div id="hud">
   <div class="brand">✦ Fairy Forest Quest</div>
   <div class="statusbar"><div id="hearts" class="hearts">♥ ♥ ♥</div><div class="progress-track"><i id="progressFill"></i></div><div class="score">✦ <span id="score">0</span> · <span id="progressText">0 / 5</span></div></div>
-  <div class="tools"><a class="tool tool-link" href="./index.html">Grove</a><button class="tool" id="helpBtn">Help</button><button class="tool" id="sfxBtn">SFX On</button><button class="tool" id="restartBtn">Restart</button></div>
+  <div class="tools"><a class="tool tool-link" href="./index.html?v=24">Grove</a><button class="tool" id="helpBtn">Help</button><button class="tool" id="sfxBtn">SFX On</button><button class="tool" id="restartBtn">Restart</button></div>
  </div>
 
  <div id="questCard"><div class="kicker" id="questKicker">Bridge challenge</div><h1 id="questText">My brother <span class="blank">___</span> to school every day.</h1><p id="questHint">Choose deliberately: jump and land on a stone.</p></div>
@@ -502,15 +502,16 @@ $("#helpBtn").onclick=()=>{running=false;$("#helpOverlay").classList.remove("hid
 $("#closeHelp").onclick=()=>{$("#helpOverlay").classList.add("hidden");running=true};
 $("#startBtn").onclick=()=>{$("#intro").classList.add("hidden");running=true;setQuest(0);updateHUD();playerVisual();setFeedback("Bridge of Habits: land on the answer stone you choose.")};
 $("#againBtn").onclick=()=>location.reload();
-$("#groveBtn").onclick=()=>location.href='./index.html';
+$("#groveBtn").onclick=()=>location.href='./index.html?v=24';
 shuffleChoices();updateHUD();setQuest(0);playerVisual();updateCamera(true);
 })();
 </script>
 <script type="module">
 import{read}from'./src/storage.js?v=3';
-import{Sound}from'./src/audio.js?v=11';
+import{Sound}from'./src/audio.js?v=12';
 const enchantedScore=new Sound(read());
 addEventListener('pointerdown',()=>enchantedScore.start(),{once:true});
+addEventListener('pagehide',()=>enchantedScore.stop());
 </script>
 </div>
 </body>
